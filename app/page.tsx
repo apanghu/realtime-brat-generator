@@ -3,9 +3,22 @@
 import { useState, useRef, useEffect } from 'react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
-import { ShareIcon, DownloadIcon } from 'lucide-react'
+import { ShareIcon, DownloadIcon, SaveIcon } from 'lucide-react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import html2canvas from 'html2canvas'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { init, tx, id } from '@instantdb/react'
+
+// ID for app: realtime-brat-generator
+const APP_ID = 'eb984380-28b4-4142-a677-5590258bd7fd'
+
+// Declare schema for intellisense
+type Schema = {
+  bratCreations: BratCreation
+}
+
+const db = init<Schema>({ appId: APP_ID })
 
 interface ColorPreset {
   label: string;
@@ -28,27 +41,41 @@ const colorPresets: ColorPreset[] = [
   { label: "custom color", value: "custom", textColor: "#8ace00", backgroundColor: "#000000" },
 ]
 
-interface Creation {
-  id: number;
+interface BratCreation {
+  id: string;
   text: string;
   preset: string;
-  likes: number;
+  createdAt: number;
 }
 
-const mockCreations: Creation[] = [
-  { id: 1, text: "BRAT LIFE", preset: "brat", likes: 120 },
-  { id: 2, text: "POP 2 FOREVER", preset: "pop2", likes: 95 },
-  { id: 3, text: "VROOM VROOM", preset: "vroomvroom", likes: 87 },
-  { id: 4, text: "CHARLI XCX", preset: "charli", likes: 76 },
-  { id: 5, text: "SUCKER PUNCH", preset: "sucker", likes: 65 },
-]
-
 export default function BratGeneratorWithTabs() {
-  const [bratText, setBratText] = useState('Guess')
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const [bratText, setBratText] = useState('')
   const [selectedPreset, setSelectedPreset] = useState<ColorPreset>(colorPresets[1]) // Default to "brat"
   const bratBoxRef = useRef<HTMLDivElement>(null)
   const editableRef = useRef<HTMLTextAreaElement>(null)
   const displayRef = useRef<HTMLDivElement>(null)
+
+  // Read Data
+  const { isLoading, error, data } = db.useQuery({ bratCreations: {} })
+
+  useEffect(() => {
+    const textFromQuery = searchParams.get('text')
+    if (textFromQuery) {
+      setBratText(decodeURIComponent(textFromQuery))
+    } else {
+      setBratText('Guess')
+    }
+
+    const presetFromQuery = searchParams.get('preset')
+    if (presetFromQuery) {
+      const newPreset = colorPresets.find(preset => preset.value === presetFromQuery)
+      if (newPreset) {
+        setSelectedPreset(newPreset)
+      }
+    }
+  }, [searchParams])
 
   useEffect(() => {
     adjustEditableSize()
@@ -58,6 +85,7 @@ export default function BratGeneratorWithTabs() {
     const newPreset = colorPresets.find(preset => preset.value === value)
     if (newPreset) {
       setSelectedPreset(newPreset)
+      updateQueryParams(bratText, newPreset.value)
     }
   }
 
@@ -71,7 +99,16 @@ export default function BratGeneratorWithTabs() {
   }
 
   const handleTextChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setBratText(e.target.value)
+    const newText = e.target.value
+    setBratText(newText)
+    updateQueryParams(newText, selectedPreset.value)
+  }
+
+  const updateQueryParams = (text: string, preset: string) => {
+    const params = new URLSearchParams(searchParams)
+    params.set('text', encodeURIComponent(text))
+    params.set('preset', preset)
+    router.push(`?${params.toString()}`, { scroll: false })
   }
 
   const handleDownload = () => {
@@ -105,126 +142,161 @@ export default function BratGeneratorWithTabs() {
     }
   }
 
-  return (
-      <div className="min-h-screen flex flex-col items-center justify-center p-4" style={{ backgroundColor: selectedPreset.backgroundColor }}>
-        <Tabs defaultValue="create" className="w-full max-w-4xl">
-          <TabsList className="grid w-full grid-cols-2 mb-4" style={{ backgroundColor: selectedPreset.textColor }}>
-            <TabsTrigger
-                value="create"
-                style={{
-                  color: selectedPreset.backgroundColor,
-                  backgroundColor: 'transparent',
-                }}
-                className="data-[state=active]:bg-background data-[state=active]:text-foreground"
-            >
-              Create
-            </TabsTrigger>
-            <TabsTrigger
-                value="leaderboard"
-                style={{
-                  color: selectedPreset.backgroundColor,
-                  backgroundColor: 'transparent',
-                }}
-                className="data-[state=active]:bg-background data-[state=active]:text-foreground"
-            >
-              Leaderboard
-            </TabsTrigger>
-          </TabsList>
-          <div className="h-[600px] overflow-hidden">
-            <TabsContent value="create" className="h-full">
-              <div
-                  ref={bratBoxRef}
-                  className="w-full max-w-md mx-auto aspect-square shadow-lg flex items-center justify-center mb-4 relative overflow-hidden"
-                  style={{ backgroundColor: selectedPreset.backgroundColor }}
-              >
-              <textarea
-                  ref={editableRef}
-                  value={bratText}
-                  onChange={handleTextChange}
-                  className="w-full h-full outline-none overflow-hidden absolute inset-0 z-10 resize-none bg-transparent text-center opacity-0"
-                  style={{
-                    color: selectedPreset.textColor,
-                    fontWeight: 'bold',
-                    fontFamily: 'arialnarrow, Arial Narrow, Arial, sans-serif',
-                    lineHeight: '1.2',
-                    padding: '10px',
-                  }}
-              />
-                <div
-                    ref={displayRef}
-                    className="w-full h-full absolute inset-0 pointer-events-none flex items-center justify-center"
-                    style={{
-                      color: selectedPreset.textColor,
-                      fontWeight: 'bold',
-                      fontFamily: 'arialnarrow, Arial Narrow, Arial, sans-serif',
-                      lineHeight: '1.2',
-                      padding: '10px',
-                      textAlign: 'center',
-                      filter: 'blur(2px) contrast(1.25)',
-                      whiteSpace: 'pre-wrap',
-                    }}
-                >
-                  {bratText}
-                </div>
-              </div>
-              <div className="flex flex-col sm:flex-row items-center gap-4 mb-4 justify-center">
-                <Select onValueChange={handlePresetChange} defaultValue={selectedPreset.value}>
-                  <SelectTrigger className="w-[180px]" style={{ backgroundColor: selectedPreset.textColor, color: selectedPreset.backgroundColor }}>
-                    <SelectValue placeholder="Select a preset" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {colorPresets.map((preset) => (
-                        <SelectItem
-                            key={preset.value}
-                            value={preset.value}
-                            style={{ color: preset.textColor, backgroundColor: preset.backgroundColor }}
-                        >
-                          {preset.label}
-                        </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Button onClick={handleShareSession} className="w-[180px]" style={{ backgroundColor: selectedPreset.textColor, color: selectedPreset.backgroundColor }}>
-                  <ShareIcon className="mr-2 h-4 w-4" /> Share Session
-                </Button>
-                <Button onClick={handleDownload} className="w-[180px]" style={{ backgroundColor: selectedPreset.textColor, color: selectedPreset.backgroundColor }}>
-                  <DownloadIcon className="mr-2 h-4 w-4" /> Download
-                </Button>
-              </div>
-            </TabsContent>
-            <TabsContent value="leaderboard" className="h-full">
-              <div
-                  className="rounded-lg shadow p-6 h-full overflow-y-auto"
-                  style={{ backgroundColor: selectedPreset.textColor, color: selectedPreset.backgroundColor }}
-              >
-                <h2 className="text-2xl font-bold mb-4">Top Creations</h2>
-                <ul className="space-y-4">
-                  {mockCreations.map((creation, index) => (
-                      <li
-                          key={creation.id}
-                          className="flex items-center justify-between border-b pb-2"
-                          style={{ borderColor: selectedPreset.backgroundColor }}
-                      >
-                        <div className="flex items-center">
-                          <span className="font-bold mr-4">{index + 1}.</span>
-                          <div>
-                            <p className="font-semibold">{creation.text}</p>
-                            <p className="text-sm opacity-75">Preset: {creation.preset}</p>
-                          </div>
-                        </div>
-                        <div className="flex items-center">
-                          <span className="mr-2">{creation.likes}</span>
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                            <path fillRule="evenodd" d="M3.172 5.172a4 4 0 015.656 0L10 6.343l1.172-1.171a4 4 0 115.656 5.656L10 17.657l-6.828-6.829a4 4 0 010-5.656z" clipRule="evenodd" />
-                          </svg>
-                        </div>
-                      </li>
-                  ))}
-                </ul>
-              </div>
-            </TabsContent>
+  const handleSave = () => {
+    db.transact(
+        tx.bratCreations[id()].update({
+          text: bratText,
+          preset: selectedPreset.value,
+          createdAt: Date.now(),
+        })
+    )
+  }
+
+  const renderBratPreview = (text: string, preset: string) => {
+    const presetConfig = colorPresets.find(p => p.value === preset) || colorPresets[1]
+    return (
+        <div
+            className="w-full aspect-square shadow-sm flex items-center justify-center overflow-hidden"
+            style={{ backgroundColor: presetConfig.backgroundColor }}
+        >
+          <div
+              style={{
+                color: presetConfig.textColor,
+                fontWeight: 'bold',
+                fontFamily: 'arialnarrow, Arial Narrow, Arial, sans-serif',
+                fontSize: '24px',
+                lineHeight: '1.2',
+                textAlign: 'center',
+                filter: 'blur(1px) contrast(1.25)',
+                whiteSpace: 'pre-wrap',
+              }}
+          >
+            {text}
           </div>
-        </Tabs>
+        </div>
+    )
+  }
+
+  if (isLoading) {
+    return <div className="flex items-center justify-center h-screen">Loading...</div>
+  }
+
+  if (error) {
+    return <div className="flex items-center justify-center h-screen">Error: {error.message}</div>
+  }
+
+  const { bratCreations } = data
+
+  return (
+      <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center p-4">
+        <Card className="w-full max-w-4xl">
+          <CardHeader>
+            <CardTitle>BRAT Generator</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Tabs defaultValue="create" className="w-full">
+              <TabsList className="grid w-full grid-cols-2 mb-4 p-1 rounded-md">
+                <TabsTrigger
+                    value="create"
+                    className="data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all duration-200"
+                >
+                  Create
+                </TabsTrigger>
+                <TabsTrigger
+                    value="saved"
+                    className="data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all duration-200"
+                >
+                  Creations
+                </TabsTrigger>
+              </TabsList>
+              <div className="h-[600px] overflow-hidden">
+                <TabsContent value="create" className="h-full">
+                  <div
+                      ref={bratBoxRef}
+                      className="w-full max-w-md mx-auto aspect-square shadow-lg flex items-center justify-center mb-4 relative overflow-hidden"
+                      style={{ backgroundColor: selectedPreset.backgroundColor }}
+                  >
+                  <textarea
+                      ref={editableRef}
+                      value={bratText}
+                      onChange={handleTextChange}
+                      className="w-full h-full outline-none overflow-hidden absolute inset-0 z-10 resize-none bg-transparent text-center opacity-0"
+                      style={{
+                        color: selectedPreset.textColor,
+                        fontWeight: 'bold',
+                        fontFamily: 'arialnarrow, Arial Narrow, Arial, sans-serif',
+                        lineHeight: '1.2',
+                        padding: '10px',
+                      }}
+                  />
+                    <div
+                        ref={displayRef}
+                        className="w-full h-full absolute inset-0 pointer-events-none flex items-center justify-center"
+                        style={{
+                          color: selectedPreset.textColor,
+                          fontWeight: 'bold',
+                          fontFamily: 'arialnarrow, Arial Narrow, Arial, sans-serif',
+                          lineHeight: '1.2',
+                          padding: '10px',
+                          textAlign: 'center',
+                          filter: 'blur(2px) contrast(1.25)',
+                          whiteSpace: 'pre-wrap',
+                        }}
+                    >
+                      {bratText}
+                    </div>
+                  </div>
+                  <div className="flex flex-col sm:flex-row items-center gap-4 mb-4 justify-center">
+                    <Select onValueChange={handlePresetChange} value={selectedPreset.value}>
+                      <SelectTrigger className="w-[180px]">
+                        <SelectValue placeholder="Select a preset" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {colorPresets.map((preset) => (
+                            <SelectItem
+                                key={preset.value}
+                                value={preset.value}
+                            >
+                              {preset.label}
+                            </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Button onClick={handleSave} className="w-[180px]">
+                      <SaveIcon className="mr-2 h-4 w-4" /> Save
+                    </Button>
+                    <Button onClick={handleShareSession} className="w-[180px]">
+                      <ShareIcon className="mr-2 h-4 w-4" /> Share Session
+                    </Button>
+                    <Button onClick={handleDownload} className="w-[180px]">
+                      <DownloadIcon className="mr-2 h-4 w-4" /> Download
+                    </Button>
+                  </div>
+                </TabsContent>
+                <TabsContent value="saved" className="h-full overflow-y-auto">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                    {[...bratCreations]
+                        .sort((a, b) => b.createdAt - a.createdAt)
+                        .map((creation) => (
+                            <Card key={creation.id} className="flex flex-col">
+                              <CardHeader className="p-4">
+                                <CardTitle className="text-lg truncate">{creation.text}</CardTitle>
+                              </CardHeader>
+                              <CardContent className="p-4 pt-0 flex-grow">
+                                {renderBratPreview(creation.text, creation.preset)}
+                                <p className="text-sm text-muted-foreground mt-2">Preset: {creation.preset}</p>
+                                <p className="text-sm text-muted-foreground">
+                                  Created: {new Date(creation.createdAt).toLocaleString()}
+                                </p>
+                              </CardContent>
+                            </Card>
+                        ))}
+                  </div>
+                </TabsContent>
+              </div>
+            </Tabs>
+          </CardContent>
+        </Card>
       </div>
   )
 }
