@@ -3,7 +3,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
-import { ShareIcon, DownloadIcon, SaveIcon, ThumbsUpIcon, ThumbsDownIcon } from 'lucide-react'
+import { ShareIcon, DownloadIcon, SaveIcon, ThumbsUpIcon, ThumbsDownIcon, CheckCircleIcon } from 'lucide-react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
@@ -13,6 +13,7 @@ import html2canvas from 'html2canvas'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { init, tx, id } from '@instantdb/react'
 import Link from 'next/link'
+import { motion, AnimatePresence } from 'framer-motion'
 
 // ID for app: realtime-brat-generator
 const APP_ID = 'eb984380-28b4-4142-a677-5590258bd7fd'
@@ -78,6 +79,7 @@ export default function BratGeneratorWithTabs() {
     code: '',
   })
   const [activeTab, setActiveTab] = useState('create')
+  const [showSaveAnimation, setShowSaveAnimation] = useState(false)
 
   // Read Data
   const { isLoading, error, data } = db.useQuery({
@@ -182,6 +184,8 @@ export default function BratGeneratorWithTabs() {
           createdBy: user.id,
         })
     )
+    setShowSaveAnimation(true)
+    setTimeout(() => setShowSaveAnimation(false), 2000)
   }
 
   const handleVote = (creationId: string, orientation: 'upvote' | 'downvote') => {
@@ -287,13 +291,13 @@ export default function BratGeneratorWithTabs() {
               <TabsList className="grid w-full grid-cols-2 mb-4 bg-muted p-1 rounded-md">
                 <TabsTrigger
                     value="create"
-                    className="data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all duration-200"
+                    className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm transition-all duration-200"
                 >
                   Create
                 </TabsTrigger>
                 <TabsTrigger
                     value="saved"
-                    className="data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all duration-200"
+                    className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm transition-all duration-200"
                 >
                   Creations
                 </TabsTrigger>
@@ -351,9 +355,23 @@ export default function BratGeneratorWithTabs() {
                         ))}
                       </SelectContent>
                     </Select>
-                    <Button onClick={handleSave} className="w-[180px]">
-                      <SaveIcon className="mr-2 h-4 w-4" /> Save
-                    </Button>
+                    <div className="relative">
+                      <Button onClick={handleSave} className="w-[180px]">
+                        <SaveIcon className="mr-2 h-4 w-4" /> Save
+                      </Button>
+                      <AnimatePresence>
+                        {showSaveAnimation && (
+                            <motion.div
+                                initial={{ opacity: 0, scale: 0.8 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                exit={{ opacity: 0, scale: 0.8 }}
+                                className="absolute inset-0 flex items-center justify-center bg-primary text-primary-foreground rounded-md"
+                            >
+                              <CheckCircleIcon className="mr-2 h-4 w-4" /> Saved!
+                            </motion.div>
+                        )}
+                      </AnimatePresence>
+                    </div>
                     <Button onClick={handleDownload} variant='secondary' className="w-[180px]">
                       <DownloadIcon className="mr-2 h-4 w-4" /> Download
                     </Button>
