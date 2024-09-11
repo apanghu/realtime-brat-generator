@@ -3,19 +3,24 @@
 import { useState, useRef, useEffect } from 'react'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
-import { ShareIcon, DownloadIcon, SaveIcon } from 'lucide-react'
+import { ShareIcon, DownloadIcon, SaveIcon, ThumbsUpIcon, ThumbsDownIcon } from 'lucide-react'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import html2canvas from 'html2canvas'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { init, tx, id } from '@instantdb/react'
+import Link from 'next/link'
 
 // ID for app: realtime-brat-generator
 const APP_ID = 'eb984380-28b4-4142-a677-5590258bd7fd'
 
 // Declare schema for intellisense
 type Schema = {
-  bratCreations: BratCreation
+  bratCreations: BratCreation;
+  votes: Vote;
 }
 
 const db = init<Schema>({ appId: APP_ID })
@@ -46,6 +51,15 @@ interface BratCreation {
   text: string;
   preset: string;
   createdAt: number;
+  createdBy: string;
+}
+
+interface Vote {
+  id: string;
+  createdUserId: string;
+  createdAt: number;
+  bratCreationId: string;
+  orientation: 'upvote' | 'downvote';
 }
 
 export default function BratGeneratorWithTabs() {
@@ -56,14 +70,27 @@ export default function BratGeneratorWithTabs() {
   const bratBoxRef = useRef<HTMLDivElement>(null)
   const editableRef = useRef<HTMLTextAreaElement>(null)
   const displayRef = useRef<HTMLDivElement>(null)
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false)
+  const [authState, setAuthState] = useState({
+    sentEmail: '',
+    email: '',
+    error: null,
+    code: '',
+  })
+  const [activeTab, setActiveTab] = useState('create')
 
   // Read Data
-  const { isLoading, error, data } = db.useQuery({ bratCreations: {} })
+  const { isLoading, error, data } = db.useQuery({
+    bratCreations: {},
+    votes: {}
+  })
+  const { user } = db.useAuth()
 
   useEffect(() => {
     const textFromQuery = searchParams.get('text')
     if (textFromQuery) {
       setBratText(decodeURIComponent(textFromQuery))
+      setActiveTab('create')
     } else {
       setBratText('Guess')
     }
@@ -143,13 +170,49 @@ export default function BratGeneratorWithTabs() {
   }
 
   const handleSave = () => {
+    if (!user) {
+      setIsAuthModalOpen(true)
+      return
+    }
     db.transact(
         tx.bratCreations[id()].update({
           text: bratText,
           preset: selectedPreset.value,
           createdAt: Date.now(),
+          createdBy: user.id,
         })
     )
+  }
+
+  const handleVote = (creationId: string, orientation: 'upvote' | 'downvote') => {
+    if (!user) {
+      setIsAuthModalOpen(true)
+      return
+    }
+
+    const existingVote = data.votes.find(
+        vote => vote.bratCreationId === creationId && vote.createdUserId === user.id
+    )
+
+    if (existingVote) {
+      if (existingVote.orientation === orientation) {
+        // Remove vote if clicking the same button
+        db.transact(tx.votes[existingVote.id].delete())
+      } else {
+        // Change vote if clicking the other button
+        db.transact(tx.votes[existingVote.id].update({ orientation }))
+      }
+    } else {
+      // Create new vote
+      db.transact(
+          tx.votes[id()].update({
+            createdUserId: user.id,
+            createdAt: Date.now(),
+            bratCreationId: creationId,
+            orientation,
+          })
+      )
+    }
   }
 
   const renderBratPreview = (text: string, preset: string) => {
@@ -177,6 +240,32 @@ export default function BratGeneratorWithTabs() {
     )
   }
 
+  const handleSendMagicCode = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!authState.email) return
+
+    setAuthState({ ...authState, sentEmail: authState.email, error: null })
+
+    try {
+      await db.auth.sendMagicCode({ email: authState.email })
+    } catch (error: any) {
+      setAuthState({ ...authState, error: error.body?.message })
+    }
+  }
+
+  const handleVerifyMagicCode = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!authState.code) return
+
+    try {
+      await db.auth.signInWithMagicCode({ email: authState.sentEmail, code: authState.code })
+      setIsAuthModalOpen(false)
+      setAuthState({ sentEmail: '', email: '', error: null, code: '' })
+    } catch (error: any) {
+      setAuthState({ ...authState, error: error.body?.message })
+    }
+  }
+
   if (isLoading) {
     return <div className="flex items-center justify-center h-screen">Loading...</div>
   }
@@ -185,7 +274,7 @@ export default function BratGeneratorWithTabs() {
     return <div className="flex items-center justify-center h-screen">Error: {error.message}</div>
   }
 
-  const { bratCreations } = data
+  const { bratCreations, votes } = data
 
   return (
       <div className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center p-4">
@@ -194,8 +283,8 @@ export default function BratGeneratorWithTabs() {
             <CardTitle>BRAT Generator</CardTitle>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="create" className="w-full">
-              <TabsList className="grid w-full grid-cols-2 mb-4 p-1 rounded-md">
+            <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+              <TabsList className="grid w-full grid-cols-2 mb-4 bg-muted p-1 rounded-md">
                 <TabsTrigger
                     value="create"
                     className="data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm transition-all duration-200"
@@ -225,7 +314,7 @@ export default function BratGeneratorWithTabs() {
                         color: selectedPreset.textColor,
                         fontWeight: 'bold',
                         fontFamily: 'arialnarrow, Arial Narrow, Arial, sans-serif',
-                        lineHeight: '1.2',
+                        lineHeight: 1.2,
                         padding: '10px',
                       }}
                   />
@@ -236,7 +325,7 @@ export default function BratGeneratorWithTabs() {
                           color: selectedPreset.textColor,
                           fontWeight: 'bold',
                           fontFamily: 'arialnarrow, Arial Narrow, Arial, sans-serif',
-                          lineHeight: '1.2',
+                          lineHeight: 1.2,
                           padding: '10px',
                           textAlign: 'center',
                           filter: 'blur(2px) contrast(1.25)',
@@ -265,10 +354,7 @@ export default function BratGeneratorWithTabs() {
                     <Button onClick={handleSave} className="w-[180px]">
                       <SaveIcon className="mr-2 h-4 w-4" /> Save
                     </Button>
-                    <Button onClick={handleShareSession} className="w-[180px]">
-                      <ShareIcon className="mr-2 h-4 w-4" /> Share Session
-                    </Button>
-                    <Button onClick={handleDownload} className="w-[180px]">
+                    <Button onClick={handleDownload} variant='secondary' className="w-[180px]">
                       <DownloadIcon className="mr-2 h-4 w-4" /> Download
                     </Button>
                   </div>
@@ -276,27 +362,136 @@ export default function BratGeneratorWithTabs() {
                 <TabsContent value="saved" className="h-full overflow-y-auto">
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                     {[...bratCreations]
-                        .sort((a, b) => b.createdAt - a.createdAt)
-                        .map((creation) => (
-                            <Card key={creation.id} className="flex flex-col">
-                              <CardHeader className="p-4">
-                                <CardTitle className="text-lg truncate">{creation.text}</CardTitle>
-                              </CardHeader>
-                              <CardContent className="p-4 pt-0 flex-grow">
-                                {renderBratPreview(creation.text, creation.preset)}
-                                <p className="text-sm text-muted-foreground mt-2">Preset: {creation.preset}</p>
-                                <p className="text-sm text-muted-foreground">
-                                  Created: {new Date(creation.createdAt).toLocaleString()}
-                                </p>
-                              </CardContent>
-                            </Card>
-                        ))}
+                        .sort((a, b) => {
+                          const aVotes = votes.filter(v => v.bratCreationId === a.id)
+                          const bVotes = votes.filter(v => v.bratCreationId === b.id)
+                          const aScore = aVotes.filter(v => v.orientation === 'upvote').length - aVotes.filter(v => v.orientation === 'downvote').length
+                          const bScore = bVotes.filter(v => v.orientation === 'upvote').length - bVotes.filter(v => v.orientation === 'downvote').length
+                          return bScore - aScore
+                        })
+                        .map((creation) => {
+                          const creationVotes = votes.filter(v => v.bratCreationId === creation.id)
+                          const upvotes = creationVotes.filter(v => v.orientation === 'upvote').length
+                          const downvotes = creationVotes.filter(v => v.orientation === 'downvote').length
+                          const userVote = user ? creationVotes.find(v => v.createdUserId === user.id) : null
+
+                          return (
+                              <Card key={creation.id} className="flex flex-col">
+                                <CardHeader className="p-4">
+                                  <Link
+                                      href={`/?text=${encodeURIComponent(creation.text)}&preset=${creation.preset}`}
+                                      onClick={(e) => {
+                                        e.preventDefault()
+                                        setBratText(creation.text)
+                                        const newPreset = colorPresets.find(preset => preset.value === creation.preset)
+                                        if (newPreset) setSelectedPreset(newPreset)
+                                        setActiveTab('create')
+                                        updateQueryParams(creation.text, creation.preset)
+                                      }}
+                                      passHref
+                                  >
+                                    <CardTitle className="text-lg truncate hover:underline cursor-pointer">
+                                      {creation.text}
+                                    </CardTitle>
+                                  </Link>
+                                </CardHeader>
+                                <CardContent className="p-4 pt-0 flex-grow">
+                                  {renderBratPreview(creation.text, creation.preset)}
+                                  <p className="text-sm text-muted-foreground mt-2">Preset: {creation.preset}</p>
+                                  <p className="text-sm text-muted-foreground">
+                                    Created: {new Date(creation.createdAt).toLocaleString()}
+                                  </p>
+                                </CardContent>
+                                <CardFooter className="flex justify-between items-center">
+                                  <div className="flex items-center space-x-2">
+                                    <Button
+                                        size="sm"
+                                        variant={userVote?.orientation === 'upvote' ? 'default' : 'outline'}
+                                        onClick={() => handleVote(creation.id, 'upvote')}
+                                    >
+                                      <ThumbsUpIcon className="h-4 w-4 mr-1" />
+                                      {upvotes}
+                                    </Button>
+                                    <Button
+                                        size="sm"
+                                        variant={userVote?.orientation === 'downvote' ? 'default' : 'outline'}
+                                        onClick={() => handleVote(creation.id, 'downvote')}
+                                    >
+                                      <ThumbsDownIcon className="h-4 w-4 mr-1" />
+                                      {downvotes}
+                                    </Button>
+                                  </div>
+                                  <div className="text-sm font-medium">
+                                    Score: {upvotes - downvotes}
+                                  </div>
+                                </CardFooter>
+                              </Card>
+                          )
+                        })}
                   </div>
                 </TabsContent>
               </div>
             </Tabs>
           </CardContent>
         </Card>
+
+        <Dialog open={isAuthModalOpen} onOpenChange={setIsAuthModalOpen}>
+          <DialogContent className="sm:max-w-[425px] bg-white">
+            <DialogHeader>
+              <DialogTitle className="text-2xl font-bold">Authentication Required</DialogTitle>
+              <DialogDescription className="text-foreground/70">
+                Please sign in to vote on BRAT creations.
+              </DialogDescription>
+            </DialogHeader>
+            <div className="mt-6">
+              {!authState.sentEmail ? (
+                  <form onSubmit={handleSendMagicCode} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="email" className="text-sm font-medium">
+                        Email
+                      </Label>
+                      <Input
+                          id="email"
+                          type="email"
+                          placeholder="Enter your email"
+                          value={authState.email}
+                          onChange={(e) => setAuthState({ ...authState, email: e.target.value, error: null })}
+                          className="w-full"
+                      />
+                    </div>
+                    <Button type="submit" className="w-full">
+                      Send Code
+                    </Button>
+                    {authState.error && (
+                        <p className="text-destructive text-sm mt-2">{authState.error}</p>
+                    )}
+                  </form>
+              ) : (
+                  <form onSubmit={handleVerifyMagicCode} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="code" className="text-sm font-medium">
+                        Magic Code
+                      </Label>
+                      <Input
+                          id="code"
+                          type="text"
+                          placeholder="Enter the magic code"
+                          value={authState.code}
+                          onChange={(e) => setAuthState({ ...authState, code: e.target.value, error: null })}
+                          className="w-full"
+                      />
+                    </div>
+                    <Button type="submit" className="w-full">
+                      Verify
+                    </Button>
+                    {authState.error && (
+                        <p className="text-destructive text-sm mt-2">{authState.error}</p>
+                    )}
+                  </form>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
       </div>
   )
 }
