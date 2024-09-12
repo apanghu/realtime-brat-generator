@@ -24,7 +24,7 @@ import TopBrats from '@/components/TopBrats';
 
 export default function BratGenerator() {
   const router = useRouter();
-  const searchParams = useSearchParams(); // useSearchParams used here
+  const searchParams = useSearchParams();
 
   const charliSongLines = [
     'Boom Clap, the sound of my heart!💖💥',
@@ -226,33 +226,39 @@ export default function BratGenerator() {
               </TabsList>
               <div className='h-[800px] overflow-hidden'>
                 <TabsContent value='create' className='h-full'>
-                  <BratCreationForm
-                    bratText={bratText}
-                    setBratText={setBratText}
-                    selectedPreset={selectedPreset}
-                    setSelectedPreset={setSelectedPreset}
-                    updateQueryParams={updateQueryParams}
-                  />
+                  <Suspense>
+                    <BratCreationForm
+                      bratText={bratText}
+                      setBratText={setBratText}
+                      selectedPreset={selectedPreset}
+                      setSelectedPreset={setSelectedPreset}
+                      updateQueryParams={updateQueryParams}
+                    />
+                  </Suspense>
                 </TabsContent>
                 <TabsContent value='saved' className='h-full overflow-y-auto'>
-                  <SavedCreations
-                    creations={sortedByDate}
-                    votes={votes}
-                    user={user}
-                    handleVote={handleVote}
-                    setBratText={setBratText}
-                    setSelectedPreset={setSelectedPreset}
-                    setActiveTab={setActiveTab}
-                    updateQueryParams={updateQueryParams}
-                  />
+                  <Suspense>
+                    <SavedCreations
+                      creations={sortedByDate}
+                      votes={votes}
+                      user={user}
+                      handleVote={handleVote}
+                      setBratText={setBratText}
+                      setSelectedPreset={setSelectedPreset}
+                      setActiveTab={setActiveTab}
+                      updateQueryParams={updateQueryParams}
+                    />
+                  </Suspense>
                 </TabsContent>
                 <TabsContent value='top' className='h-full overflow-y-auto'>
-                  <TopBrats
-                    creations={sortedByLikes}
-                    votes={votes}
-                    user={user}
-                    onVote={handleVote}
-                  />
+                  <Suspense>
+                    <TopBrats
+                      creations={sortedByLikes}
+                      votes={votes}
+                      user={user}
+                      onVote={handleVote}
+                    />
+                  </Suspense>
                 </TabsContent>
               </div>
             </Tabs>
