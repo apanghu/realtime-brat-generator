@@ -94,3 +94,8 @@ export interface Vote {
   bratCreationId: string;
   orientation: 'upvote' | 'downvote';
 }
+
+export interface User {
+  id: string;
+  email: string;
+}

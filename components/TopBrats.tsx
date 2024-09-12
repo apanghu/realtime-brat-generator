@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Card,
@@ -10,22 +11,50 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ThumbsUpIcon, ThumbsDownIcon } from 'lucide-react';
-import { BratCreation, colorPresets, Vote } from '@/lib/types';
+import { BratCreation, colorPresets, User, Vote } from '@/lib/types';
 import { renderBratPreview } from '@/components/BratPreview';
 
 interface TopBratsProps {
   creations: BratCreation[];
   votes: Vote[];
-  user: any;
-  handleVote: (creationId: string, orientation: 'upvote' | 'downvote') => void;
+  user: User | null;
+  onVote: (creationId: string, orientation: 'upvote' | 'downvote') => void;
 }
 
-export default function TopBrats({
-  creations,
-  votes,
-  user,
-  handleVote,
-}: TopBratsProps) {
+const TopBrats = ({ creations, votes, user, onVote }: TopBratsProps) => {
+  const [localVotes, setLocalVotes] = useState<Vote[]>(votes);
+
+  const handleVote = (
+    creationId: string,
+    orientation: 'upvote' | 'downvote'
+  ) => {
+    if (!user) return;
+
+    const newVote: Vote = {
+      id: `${user.id}-${creationId}`,
+      bratCreationId: creationId,
+      createdUserId: user.id,
+      orientation: orientation,
+      createdAt: Date.now(),
+    };
+
+    setLocalVotes((prevVotes) => {
+      const existingVoteIndex = prevVotes.findIndex(
+        (v) => v.bratCreationId === creationId && v.createdUserId === user.id
+      );
+
+      if (existingVoteIndex > -1) {
+        const updatedVotes = [...prevVotes];
+        updatedVotes[existingVoteIndex] = newVote;
+        return updatedVotes;
+      } else {
+        return [...prevVotes, newVote];
+      }
+    });
+
+    onVote(creationId, orientation);
+  };
+
   return (
     <motion.div
       layout
@@ -33,7 +62,7 @@ export default function TopBrats({
     >
       <AnimatePresence>
         {creations.map((creation, index) => {
-          const creationVotes = votes.filter(
+          const creationVotes = localVotes.filter(
             (v) => v.bratCreationId === creation.id
           );
           const upvotes = creationVotes.filter(
@@ -115,4 +144,8 @@ export default function TopBrats({
       </AnimatePresence>
     </motion.div>
   );
-}
+};
+
+TopBrats.displayName = 'TopBrats';
+
+export default TopBrats;

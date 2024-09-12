@@ -29,13 +29,13 @@ interface BratCreationFormProps {
   updateQueryParams: (text: string, preset: string) => void;
 }
 
-export default ({
+function BratCreationForm({
   bratText,
   setBratText,
   selectedPreset,
   setSelectedPreset,
   updateQueryParams,
-}: BratCreationFormProps) => {
+}: BratCreationFormProps) {
   const bratBoxRef = useRef<HTMLDivElement>(null);
   const displayRef = useRef<HTMLDivElement>(null);
   const [showSaveAnimation, setShowSaveAnimation] = useState(false);
@@ -184,4 +184,6 @@ export default ({
       </div>
     </div>
   );
-};
+}
+
+export default BratCreationForm;
