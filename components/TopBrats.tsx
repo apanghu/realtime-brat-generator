@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Card,
@@ -18,43 +17,10 @@ interface TopBratsProps {
   creations: BratCreation[];
   votes: Vote[];
   user: User | undefined;
-  onVote: (creationId: string, orientation: 'upvote' | 'downvote') => void;
+  handleVote: (creationId: string, orientation: 'upvote' | 'downvote') => void;
 }
 
-const TopBrats = ({ creations, votes, user, onVote }: TopBratsProps) => {
-  const [localVotes, setLocalVotes] = useState<Vote[]>(votes);
-
-  const handleVote = (
-    creationId: string,
-    orientation: 'upvote' | 'downvote'
-  ) => {
-    if (!user) return;
-
-    const newVote: Vote = {
-      id: `${user.id}-${creationId}`,
-      bratCreationId: creationId,
-      createdUserId: user.id,
-      orientation: orientation,
-      createdAt: Date.now(),
-    };
-
-    setLocalVotes((prevVotes) => {
-      const existingVoteIndex = prevVotes.findIndex(
-        (v) => v.bratCreationId === creationId && v.createdUserId === user.id
-      );
-
-      if (existingVoteIndex > -1) {
-        const updatedVotes = [...prevVotes];
-        updatedVotes[existingVoteIndex] = newVote;
-        return updatedVotes;
-      } else {
-        return [...prevVotes, newVote];
-      }
-    });
-
-    onVote(creationId, orientation);
-  };
-
+const TopBrats = ({ creations, votes, user, handleVote }: TopBratsProps) => {
   return (
     <motion.div
       layout
@@ -62,7 +28,7 @@ const TopBrats = ({ creations, votes, user, onVote }: TopBratsProps) => {
     >
       <AnimatePresence>
         {creations.map((creation, index) => {
-          const creationVotes = localVotes.filter(
+          const creationVotes = votes.filter(
             (v) => v.bratCreationId === creation.id
           );
           const upvotes = creationVotes.filter(

@@ -251,7 +251,7 @@ export default function BratGenerator() {
                     creations={sortedByLikes}
                     votes={votes}
                     user={user}
-                    onVote={handleVote}
+                    handleVote={handleVote}
                   />
                 </TabsContent>
               </div>
