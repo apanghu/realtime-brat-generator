@@ -11,13 +11,13 @@ import {
 import { Button } from '@/components/ui/button';
 import { DownloadIcon, SaveIcon, CheckCircleIcon } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
-import html2canvas from 'html2canvas';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ColorPreset, colorPresets } from '@/lib/types';
 import { db } from '@/lib/db';
 import { tx } from '@instantdb/react';
 import { id } from '@instantdb/core';
 import dynamic from 'next/dynamic';
+import { toPng } from 'html-to-image';
 
 const ReactConfetti = dynamic(() => import('react-confetti'), { ssr: false });
 
@@ -70,12 +70,16 @@ function BratCreationForm({
 
   const handleDownload = () => {
     if (bratBoxRef.current) {
-      html2canvas(bratBoxRef.current).then((canvas) => {
-        const link = document.createElement('a');
-        link.href = canvas.toDataURL('image/png');
-        link.download = 'brat-creation.png';
-        link.click();
-      });
+      toPng(bratBoxRef.current, { quality: 0.95 })
+        .then((dataUrl) => {
+          const link = document.createElement('a');
+          link.href = dataUrl;
+          link.download = 'brat-creation.png';
+          link.click();
+        })
+        .catch((error) => {
+          console.error('Failed to capture image: ', error);
+        });
     }
   };
 
@@ -130,7 +134,7 @@ function BratCreationForm({
             fontFamily: 'arialnarrow, Arial Narrow, Arial, sans-serif',
             lineHeight: 1.2,
             padding: '10px',
-            filter: 'blur(1.7px) contrast(1.25)',
+            filter: 'blur(1.7px)',
             whiteSpace: 'pre-wrap',
           }}
         >
