@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Analytics } from '@vercel/analytics/react';
 import './globals.css';
 
