@@ -1,6 +1,5 @@
 import type { Metadata } from 'next';
 import localFont from 'next/font/local';
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { Analytics } from '@vercel/analytics/react';
 import './globals.css';
 
@@ -27,6 +26,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang='en'>
+      <Analytics />
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
