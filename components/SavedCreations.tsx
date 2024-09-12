@@ -11,7 +11,13 @@ import {
 import { Button } from '@/components/ui/button';
 import { ThumbsUpIcon, ThumbsDownIcon } from 'lucide-react';
 import Link from 'next/link';
-import { BratCreation, colorPresets, User, Vote } from '@/lib/types';
+import {
+  BratCreation,
+  colorPresets,
+  User,
+  Vote,
+  ColorPreset,
+} from '@/lib/types'; // Import ColorPreset
 import { renderBratPreview } from '@/components/BratPreview';
 
 interface SavedCreationsProps {
@@ -20,7 +26,7 @@ interface SavedCreationsProps {
   user: User | undefined;
   handleVote: (creationId: string, orientation: 'upvote' | 'downvote') => void;
   setBratText: (text: string) => void;
-  setSelectedPreset: (preset: any) => void;
+  setSelectedPreset: (preset: ColorPreset) => void; // Specify the type as ColorPreset
   setActiveTab: (tab: string) => void;
   updateQueryParams: (text: string, preset: string) => void;
 }
@@ -66,7 +72,12 @@ const SavedCreations = ({
                 onClick={(e) => {
                   e.preventDefault();
                   setBratText(creation.text);
-                  setSelectedPreset({ value: creation.preset } as any);
+                  const selectedPreset = colorPresets.find(
+                    (preset) => preset.value === creation.preset
+                  );
+                  if (selectedPreset) {
+                    setSelectedPreset(selectedPreset); // Use the correct preset type
+                  }
                   setActiveTab('create');
                   updateQueryParams(creation.text, creation.preset);
                 }}
