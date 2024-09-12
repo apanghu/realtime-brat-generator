@@ -226,39 +226,33 @@ export default function BratGenerator() {
               </TabsList>
               <div className='h-[800px] overflow-hidden'>
                 <TabsContent value='create' className='h-full'>
-                  <Suspense>
-                    <BratCreationForm
-                      bratText={bratText}
-                      setBratText={setBratText}
-                      selectedPreset={selectedPreset}
-                      setSelectedPreset={setSelectedPreset}
-                      updateQueryParams={updateQueryParams}
-                    />
-                  </Suspense>
+                  <BratCreationForm
+                    bratText={bratText}
+                    setBratText={setBratText}
+                    selectedPreset={selectedPreset}
+                    setSelectedPreset={setSelectedPreset}
+                    updateQueryParams={updateQueryParams}
+                  />
                 </TabsContent>
                 <TabsContent value='saved' className='h-full overflow-y-auto'>
-                  <Suspense>
-                    <SavedCreations
-                      creations={sortedByDate}
-                      votes={votes}
-                      user={user}
-                      handleVote={handleVote}
-                      setBratText={setBratText}
-                      setSelectedPreset={setSelectedPreset}
-                      setActiveTab={setActiveTab}
-                      updateQueryParams={updateQueryParams}
-                    />
-                  </Suspense>
+                  <SavedCreations
+                    creations={sortedByDate}
+                    votes={votes}
+                    user={user}
+                    handleVote={handleVote}
+                    setBratText={setBratText}
+                    setSelectedPreset={setSelectedPreset}
+                    setActiveTab={setActiveTab}
+                    updateQueryParams={updateQueryParams}
+                  />
                 </TabsContent>
                 <TabsContent value='top' className='h-full overflow-y-auto'>
-                  <Suspense>
-                    <TopBrats
-                      creations={sortedByLikes}
-                      votes={votes}
-                      user={user}
-                      onVote={handleVote}
-                    />
-                  </Suspense>
+                  <TopBrats
+                    creations={sortedByLikes}
+                    votes={votes}
+                    user={user}
+                    onVote={handleVote}
+                  />
                 </TabsContent>
               </div>
             </Tabs>
