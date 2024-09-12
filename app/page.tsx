@@ -25,7 +25,24 @@ import TopBrats from '@/components/TopBrats';
 export default function BratGenerator() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [bratText, setBratText] = useState('');
+
+  const charliSongLines = [
+    'Boom Clap, the sound of my heart!💖💥',
+    "I don't wanna go to school, I just wanna break the rules!🕺🎉",
+    "Boys, I was busy dreaming 'bout boys! 🧠💭💃",
+    'Vroom Vroom, bitches!💨🚀',
+    "I'm so fancy, you already know!✨🔥",
+    'Unlock it, lock it, unlock it!🔐🎤',
+    'I just wanna go back, back to 1999!⏳💔',
+    'Blame it on your love, love every time!💘🚨',
+    'Take my hand, let me be your fantasy!✋✨🌟',
+    "Doing it, doing it, we're doing it well!💪🌈",
+  ];
+
+  const getRandomSongLine = () =>
+    charliSongLines[Math.floor(Math.random() * charliSongLines.length)];
+
+  const [bratText, setBratText] = useState(getRandomSongLine());
   const [selectedPreset, setSelectedPreset] = useState<ColorPreset>(
     colorPresets[1]
   );
@@ -49,8 +66,6 @@ export default function BratGenerator() {
     if (textFromQuery) {
       setBratText(decodeURIComponent(textFromQuery));
       setActiveTab('create');
-    } else {
-      setBratText('Guess');
     }
 
     const presetFromQuery = searchParams.get('preset');
