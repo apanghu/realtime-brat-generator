@@ -24,7 +24,7 @@ import TopBrats from '@/components/TopBrats';
 
 export default function BratGenerator() {
   const router = useRouter();
-  const searchParams = useSearchParams();
+  const searchParams = useSearchParams(); // useSearchParams used here
 
   const charliSongLines = [
     'Boom Clap, the sound of my heart!💖💥',
@@ -186,7 +186,13 @@ export default function BratGenerator() {
   });
 
   return (
-    <Suspense>
+    <Suspense
+      fallback={
+        <div className='flex h-screen items-center justify-center'>
+          Loading...
+        </div>
+      }
+    >
       <div className='flex min-h-screen flex-col items-center justify-center bg-background p-4 text-foreground'>
         <Card className='w-full max-w-4xl'>
           <CardHeader>
