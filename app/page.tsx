@@ -50,7 +50,7 @@ export default function BratGenerator() {
   const [authState, setAuthState] = useState({
     sentEmail: '',
     email: '',
-    error: null,
+    error: null as string | null,
     code: '',
   });
   const [activeTab, setActiveTab] = useState('create');
@@ -126,8 +126,10 @@ export default function BratGenerator() {
 
     try {
       await db.auth.sendMagicCode({ email: authState.email });
-    } catch (error: any) {
-      setAuthState({ ...authState, error: error.body?.message });
+    } catch (error) {
+      if (error instanceof Error) {
+        setAuthState({ ...authState, error: error.message });
+      }
     }
   };
 
@@ -142,8 +144,10 @@ export default function BratGenerator() {
       });
       setIsAuthModalOpen(false);
       setAuthState({ sentEmail: '', email: '', error: null, code: '' });
-    } catch (error: any) {
-      setAuthState({ ...authState, error: error.body?.message });
+    } catch (error) {
+      if (error instanceof Error) {
+        setAuthState({ ...authState, error: error.message });
+      }
     }
   };
 
@@ -240,7 +244,7 @@ export default function BratGenerator() {
                   creations={sortedByLikes}
                   votes={votes}
                   user={user}
-                  handleVote={handleVote}
+                  onVote={handleVote}
                 />
               </TabsContent>
             </div>

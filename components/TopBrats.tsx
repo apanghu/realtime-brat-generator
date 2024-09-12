@@ -17,7 +17,7 @@ import { renderBratPreview } from '@/components/BratPreview';
 interface TopBratsProps {
   creations: BratCreation[];
   votes: Vote[];
-  user: User | null;
+  user: User | undefined;
   onVote: (creationId: string, orientation: 'upvote' | 'downvote') => void;
 }
 
