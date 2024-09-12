@@ -9,7 +9,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { DownloadIcon, SaveIcon, CheckCircleIcon } from 'lucide-react';
+import { DownloadIcon, CloudIcon, CheckCircleIcon } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ColorPreset, colorPresets } from '@/lib/types';
@@ -163,7 +163,7 @@ function BratCreationForm({
         </Select>
         <div className='relative w-full sm:w-[180px]'>
           <Button onClick={handleSave} className='w-full'>
-            <SaveIcon className='mr-2 h-4 w-4' /> Save
+            <CloudIcon className='mr-2 h-4 w-4' /> Upload
           </Button>
           <AnimatePresence>
             {showSaveAnimation && (
