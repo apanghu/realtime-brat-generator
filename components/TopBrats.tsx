@@ -17,10 +17,10 @@ interface TopBratsProps {
   creations: BratCreation[];
   votes: Vote[];
   user: User | undefined;
-  handleVote: (creationId: string, orientation: 'upvote' | 'downvote') => void;
+  onVote: (creationId: string, orientation: 'upvote' | 'downvote') => void;
 }
 
-const TopBrats = ({ creations, votes, user, handleVote }: TopBratsProps) => {
+const TopBrats = ({ creations, votes, user, onVote }: TopBratsProps) => {
   return (
     <motion.div
       layout
@@ -50,13 +50,13 @@ const TopBrats = ({ creations, votes, user, handleVote }: TopBratsProps) => {
               exit={{ opacity: 0, scale: 0.9 }}
               transition={{ duration: 0.8 }}
             >
-              <Card className='flex h-full flex-col'>
+              <Card className="glass-effect hover-effect">
                 <CardHeader className='p-4'>
                   <div className='flex items-center justify-between'>
-                    <CardTitle className='truncate text-lg'>
+                    <CardTitle className='truncate text-lg gradient-text'>
                       {creation.text}
                     </CardTitle>
-                    <div className='text-2xl font-bold'>#{index + 1}</div>
+                    <div className='text-2xl font-bold text-primary'>#{index + 1}</div>
                   </div>
                 </CardHeader>
                 <CardContent className='flex-grow p-4 pt-0'>
@@ -72,7 +72,7 @@ const TopBrats = ({ creations, votes, user, handleVote }: TopBratsProps) => {
                     Created: {new Date(creation.createdAt).toLocaleString()}
                   </p>
                 </CardContent>
-                <CardFooter className='flex items-center justify-between'>
+                <CardFooter className='flex flex-col space-y-2 p-4'>
                   <div className='flex items-center space-x-2'>
                     <Button
                       size='sm'
@@ -81,7 +81,8 @@ const TopBrats = ({ creations, votes, user, handleVote }: TopBratsProps) => {
                           ? 'default'
                           : 'outline'
                       }
-                      onClick={() => handleVote(creation.id, 'upvote')}
+                      onClick={() => onVote(creation.id, 'upvote')}
+                      className="hover-effect"
                     >
                       <ThumbsUpIcon className='mr-1 h-4 w-4' />
                       {upvotes}
@@ -93,7 +94,8 @@ const TopBrats = ({ creations, votes, user, handleVote }: TopBratsProps) => {
                           ? 'default'
                           : 'outline'
                       }
-                      onClick={() => handleVote(creation.id, 'downvote')}
+                      onClick={() => onVote(creation.id, 'downvote')}
+                      className="hover-effect"
                     >
                       <ThumbsDownIcon className='mr-1 h-4 w-4' />
                       {downvotes}

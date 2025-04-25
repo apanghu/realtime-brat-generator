@@ -10,36 +10,21 @@ import {
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ThumbsUpIcon, ThumbsDownIcon } from 'lucide-react';
-import Link from 'next/link';
-import {
-  BratCreation,
-  colorPresets,
-  User,
-  Vote,
-  ColorPreset,
-} from '@/lib/types'; // Import ColorPreset
+import { BratCreation, colorPresets, User, Vote } from '@/lib/types';
 import { renderBratPreview } from '@/components/BratPreview';
 
 interface SavedCreationsProps {
   creations: BratCreation[];
   votes: Vote[];
   user: User | undefined;
-  handleVote: (creationId: string, orientation: 'upvote' | 'downvote') => void;
-  setBratText: (text: string) => void;
-  setSelectedPreset: (preset: ColorPreset) => void; // Specify the type as ColorPreset
-  setActiveTab: (tab: string) => void;
-  updateQueryParams: (text: string, preset: string) => void;
+  onVote: (creationId: string, orientation: 'upvote' | 'downvote') => void;
 }
 
 const SavedCreations = ({
   creations,
   votes,
   user,
-  handleVote,
-  setBratText,
-  setSelectedPreset,
-  setActiveTab,
-  updateQueryParams,
+  onVote,
 }: SavedCreationsProps) => (
   <div className='grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3'>
     {creations.map((creation) => {
@@ -65,28 +50,11 @@ const SavedCreations = ({
           exit={{ opacity: 0, scale: 0.9 }}
           transition={{ duration: 0.8 }}
         >
-          <Card key={creation.id} className='flex flex-col'>
+          <Card className="glass-effect hover-effect">
             <CardHeader className='p-4'>
-              <Link
-                href={`/?text=${encodeURIComponent(creation.text)}&preset=${creation.preset}`}
-                onClick={(e) => {
-                  e.preventDefault();
-                  setBratText(creation.text);
-                  const selectedPreset = colorPresets.find(
-                    (preset) => preset.value === creation.preset
-                  );
-                  if (selectedPreset) {
-                    setSelectedPreset(selectedPreset); // Use the correct preset type
-                  }
-                  setActiveTab('create');
-                  updateQueryParams(creation.text, creation.preset);
-                }}
-                passHref
-              >
-                <CardTitle className='cursor-pointer truncate text-lg hover:underline'>
-                  {creation.text}
-                </CardTitle>
-              </Link>
+              <CardTitle className='truncate text-lg gradient-text'>
+                {creation.text}
+              </CardTitle>
             </CardHeader>
             <CardContent className='flex-grow p-4 pt-0'>
               {renderBratPreview(creation.text, creation.preset, colorPresets)}
@@ -97,14 +65,15 @@ const SavedCreations = ({
                 Created: {new Date(creation.createdAt).toLocaleString()}
               </p>
             </CardContent>
-            <CardFooter className='flex items-center justify-between'>
+            <CardFooter className='flex flex-col space-y-2 p-4'>
               <div className='flex items-center space-x-2'>
                 <Button
                   size='sm'
                   variant={
                     userVote?.orientation === 'upvote' ? 'default' : 'outline'
                   }
-                  onClick={() => handleVote(creation.id, 'upvote')}
+                  onClick={() => onVote(creation.id, 'upvote')}
+                  className="hover-effect"
                 >
                   <ThumbsUpIcon className='mr-1 h-4 w-4' />
                   {upvotes}
@@ -114,7 +83,8 @@ const SavedCreations = ({
                   variant={
                     userVote?.orientation === 'downvote' ? 'default' : 'outline'
                   }
-                  onClick={() => handleVote(creation.id, 'downvote')}
+                  onClick={() => onVote(creation.id, 'downvote')}
+                  className="hover-effect"
                 >
                   <ThumbsDownIcon className='mr-1 h-4 w-4' />
                   {downvotes}

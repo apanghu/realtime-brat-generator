@@ -21,6 +21,12 @@ import SavedCreations from '@/components/SavedCreations';
 import { id } from '@instantdb/core';
 import BratCreationForm from '@/components/BratCreationForm';
 import TopBrats from '@/components/TopBrats';
+import Navbar from './components/Navbar';
+import PageLayout from './components/PageLayout';
+import LoadingSpinner from './components/LoadingSpinner';
+import StatsSection from './components/StatsSection';
+import FeatureHighlight from './components/FeatureHighlight';
+import Footer from './components/Footer';
 
 export default function BratGenerator() {
   const router = useRouter();
@@ -186,154 +192,158 @@ export default function BratGenerator() {
   });
 
   return (
-    <Suspense
-      fallback={
-        <div className='flex h-screen items-center justify-center'>
-          Loading...
-        </div>
-      }
-    >
-      <div className='flex min-h-screen flex-col items-center justify-center bg-background p-4 text-foreground'>
-        <Card className='w-full max-w-4xl'>
-          <CardHeader>
-            <CardTitle>BRAT Generator</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <Tabs
-              value={activeTab}
-              onValueChange={setActiveTab}
-              className='w-full'
-            >
-              <TabsList className='mb-4 grid w-full grid-cols-3 rounded-md bg-muted p-1'>
-                <TabsTrigger
-                  value='create'
-                  className='transition-all duration-200 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm'
-                >
-                  Create
-                </TabsTrigger>
-                <TabsTrigger
-                  value='saved'
-                  className='transition-all duration-200 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm'
-                >
-                  Creations
-                </TabsTrigger>
-                <TabsTrigger
-                  value='top'
-                  className='transition-all duration-200 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-sm'
-                >
-                  Top BRATs
-                </TabsTrigger>
-              </TabsList>
-              <div className='h-[800px] overflow-hidden'>
-                <TabsContent value='create' className='h-full'>
-                  <BratCreationForm
-                    bratText={bratText}
-                    setBratText={setBratText}
-                    selectedPreset={selectedPreset}
-                    setSelectedPreset={setSelectedPreset}
-                    updateQueryParams={updateQueryParams}
-                  />
-                </TabsContent>
-                <TabsContent value='saved' className='h-full overflow-y-auto'>
-                  <SavedCreations
-                    creations={sortedByDate}
-                    votes={votes}
-                    user={user}
-                    handleVote={handleVote}
-                    setBratText={setBratText}
-                    setSelectedPreset={setSelectedPreset}
-                    setActiveTab={setActiveTab}
-                    updateQueryParams={updateQueryParams}
-                  />
-                </TabsContent>
-                <TabsContent value='top' className='h-full overflow-y-auto'>
-                  <TopBrats
-                    creations={sortedByLikes}
-                    votes={votes}
-                    user={user}
-                    handleVote={handleVote}
-                  />
-                </TabsContent>
-              </div>
-            </Tabs>
-          </CardContent>
-        </Card>
-
-        <Dialog open={isAuthModalOpen} onOpenChange={setIsAuthModalOpen}>
-          <DialogContent className='bg-white sm:max-w-[425px]'>
-            <DialogHeader>
-              <DialogTitle className='text-2xl font-bold'>
-                Authentication Required
-              </DialogTitle>
-              <DialogDescription className='text-foreground/70'>
-                Please sign in to vote on BRAT creations.
-              </DialogDescription>
-            </DialogHeader>
-            <div className='mt-6'>
-              {!authState.sentEmail ? (
-                <form onSubmit={handleSendMagicCode} className='space-y-4'>
-                  <div className='space-y-2'>
-                    <Label htmlFor='email' className='text-sm font-medium'>
-                      Email
-                    </Label>
-                    <Input
-                      id='email'
-                      type='email'
-                      placeholder='Enter your email'
-                      value={authState.email}
-                      onChange={(e) =>
-                        setAuthState({
-                          ...authState,
-                          email: e.target.value,
-                          error: null,
-                        })
-                      }
-                      className='w-full'
-                    />
-                  </div>
-                  <Button type='submit' className='w-full'>
-                    Send Code
-                  </Button>
-                  {authState.error && (
-                    <p className='mt-2 text-sm text-destructive'>
-                      {authState.error}
-                    </p>
-                  )}
-                </form>
-              ) : (
-                <form onSubmit={handleVerifyMagicCode} className='space-y-4'>
-                  <div className='space-y-2'>
-                    <Label htmlFor='code' className='text-sm font-medium'>
-                      Magic Code
-                    </Label>
-                    <Input
-                      id='code'
-                      type='text'
-                      placeholder='Enter the magic code'
-                      value={authState.code}
-                      onChange={(e) =>
-                        setAuthState({
-                          ...authState,
-                          code: e.target.value,
-                          error: null,
-                        })
-                      }
-                      className='w-full'
-                    />
-                  </div>
-                  <Button type='submit' className='w-full'>
-                    Verify
-                  </Button>
-                  {authState.error && (
-                    <p className='mt-2 text-sm text-destructive'>
-                      {authState.error}
-                    </p>
-                  )}
-                </form>
-              )}
+    <Suspense fallback={<LoadingSpinner />}>
+      <div className="min-h-screen flex flex-col">
+        <Navbar />
+        <PageLayout
+          heading="BRAT Generator"
+          subheading="Create and share your unique BRAT content"
+          className="flex-grow bg-gradient-to-b from-background via-background/80 to-background"
+        >
+          <div className="space-y-16 py-8 animate-fade-in">
+            {/* Main Creation Section */}
+            <div className="mx-auto max-w-4xl">
+              <Card className="glass-effect hover-effect card-hover">
+                <CardHeader className="border-b border-border/40">
+                  <CardTitle className="text-3xl font-bold gradient-text text-center">
+                    Create Your BRAT
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="pt-6">
+                  <Tabs
+                    value={activeTab}
+                    onValueChange={setActiveTab}
+                    className="w-full"
+                  >
+                    <TabsList className="mb-4 grid w-full grid-cols-3 rounded-lg bg-muted/50 p-1">
+                      <TabsTrigger
+                        value="create"
+                        className="rounded-md transition-all duration-300 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg"
+                      >
+                        Create
+                      </TabsTrigger>
+                      <TabsTrigger
+                        value="saved"
+                        className="rounded-md transition-all duration-300 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg"
+                      >
+                        Creations
+                      </TabsTrigger>
+                      <TabsTrigger
+                        value="top"
+                        className="rounded-md transition-all duration-300 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg"
+                      >
+                        Top BRATs
+                      </TabsTrigger>
+                    </TabsList>
+                    <div className="h-[600px] overflow-hidden rounded-lg">
+                      <TabsContent value="create" className="h-full">
+                        <BratCreationForm
+                          bratText={bratText}
+                          setBratText={setBratText}
+                          selectedPreset={selectedPreset}
+                          setSelectedPreset={setSelectedPreset}
+                          updateQueryParams={updateQueryParams}
+                        />
+                      </TabsContent>
+                      <TabsContent value="saved" className="h-full overflow-y-auto">
+                        <SavedCreations
+                          creations={sortedByDate}
+                          votes={votes}
+                          user={user}
+                          onVote={handleVote}
+                        />
+                      </TabsContent>
+                      <TabsContent value="top" className="h-full overflow-y-auto">
+                        <TopBrats
+                          creations={sortedByLikes}
+                          votes={votes}
+                          user={user}
+                          onVote={handleVote}
+                        />
+                      </TabsContent>
+                    </div>
+                  </Tabs>
+                </CardContent>
+              </Card>
             </div>
-          </DialogContent>
-        </Dialog>
+
+            {/* Stats and Features Section */}
+            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+              <div className="space-y-16">
+                <div className="glass-effect rounded-lg p-8 card-hover">
+                  <StatsSection />
+                </div>
+
+                <div className="glass-effect rounded-lg p-8 card-hover">
+                  <FeatureHighlight />
+                </div>
+              </div>
+            </div>
+
+            {/* Auth Dialog */}
+            <Dialog open={isAuthModalOpen} onOpenChange={setIsAuthModalOpen}>
+              <DialogContent className="glass-effect sm:max-w-[425px]">
+                <DialogHeader>
+                  <DialogTitle className="text-2xl font-bold gradient-text">
+                    {!authState.sentEmail ? 'Sign In' : 'Enter Code'}
+                  </DialogTitle>
+                  <DialogDescription>
+                    {!authState.sentEmail
+                      ? 'Enter your email to receive a magic link'
+                      : 'Check your email for the magic code'}
+                  </DialogDescription>
+                </DialogHeader>
+                
+                {!authState.sentEmail ? (
+                  <form onSubmit={handleSendMagicCode} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="email">Email</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        value={authState.email}
+                        onChange={(e) =>
+                          setAuthState({ ...authState, email: e.target.value })
+                        }
+                        className="glass-effect"
+                        required
+                      />
+                    </div>
+                    {authState.error && (
+                      <p className="text-destructive text-sm">{authState.error}</p>
+                    )}
+                    <Button type="submit" className="w-full button-effect">
+                      Send Magic Code
+                    </Button>
+                  </form>
+                ) : (
+                  <form onSubmit={handleVerifyMagicCode} className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="code">Magic Code</Label>
+                      <Input
+                        id="code"
+                        value={authState.code}
+                        onChange={(e) =>
+                          setAuthState({ ...authState, code: e.target.value })
+                        }
+                        className="glass-effect"
+                        required
+                      />
+                    </div>
+                    {authState.error && (
+                      <p className="text-destructive text-sm">{authState.error}</p>
+                    )}
+                    <Button type="submit" className="w-full button-effect">
+                      Verify Code
+                    </Button>
+                  </form>
+                )}
+              </DialogContent>
+            </Dialog>
+          </div>
+        </PageLayout>
+        
+        <Footer className="glass-effect mt-auto" />
       </div>
     </Suspense>
   );
