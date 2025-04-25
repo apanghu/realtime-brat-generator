@@ -250,6 +250,7 @@ export default function BratGenerator() {
                           votes={votes}
                           user={user}
                           onVote={handleVote}
+                          setIsAuthModalOpen={setIsAuthModalOpen}
                         />
                       </TabsContent>
                       <TabsContent value="top" className="focus-visible:outline-none">
@@ -265,6 +266,82 @@ export default function BratGenerator() {
                 </CardContent>
               </div>
 
+              <Dialog open={isAuthModalOpen} onOpenChange={setIsAuthModalOpen}>
+          <DialogContent className='bg-white sm:max-w-[425px]'>
+            <DialogHeader>
+              <DialogTitle className='text-2xl font-bold'>
+                Authentication Required
+              </DialogTitle>
+              <DialogDescription className='text-foreground/70'>
+                Please sign in to vote on BRAT creations.
+              </DialogDescription>
+            </DialogHeader>
+            <div className='mt-6'>
+              {!authState.sentEmail ? (
+                <form onSubmit={handleSendMagicCode} className='space-y-4'>
+                  <div className='space-y-2'>
+                    <Label htmlFor='email' className='text-sm font-medium'>
+                      Email
+                    </Label>
+                    <Input
+                      id='email'
+                      type='email'
+                      placeholder='Enter your email'
+                      value={authState.email}
+                      onChange={(e) =>
+                        setAuthState({
+                          ...authState,
+                          email: e.target.value,
+                          error: null,
+                        })
+                      }
+                      className='w-full'
+                    />
+                  </div>
+                  <Button type='submit' className='w-full'>
+                    Send Code
+                  </Button>
+                  {authState.error && (
+                    <p className='mt-2 text-sm text-destructive'>
+                      {authState.error}
+                    </p>
+                  )}
+                </form>
+              ) : (
+                <form onSubmit={handleVerifyMagicCode} className='space-y-4'>
+                  <div className='space-y-2'>
+                    <Label htmlFor='code' className='text-sm font-medium'>
+                      Magic Code
+                    </Label>
+                    <Input
+                      id='code'
+                      type='text'
+                      placeholder='Enter the magic code'
+                      value={authState.code}
+                      onChange={(e) =>
+                        setAuthState({
+                          ...authState,
+                          code: e.target.value,
+                          error: null,
+                        })
+                      }
+                      className='w-full'
+                    />
+                  </div>
+                  <Button type='submit' className='w-full'>
+                    Verify
+                  </Button>
+                  {authState.error && (
+                    <p className='mt-2 text-sm text-destructive'>
+                      {authState.error}
+                    </p>
+                  )}
+                </form>
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
+        
               <div className="glass-effect rounded-xl p-6 sm:p-8 card-hover">
                 <StatsSection />
               </div>
