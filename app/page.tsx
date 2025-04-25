@@ -2,7 +2,7 @@
 
 import { useState, useEffect, Suspense } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
@@ -303,7 +303,6 @@ export default function BratGenerator() {
                           votes={votes}
                           user={user}
                           onVote={handleVote}
-                          setIsAuthModalOpen={setIsAuthModalOpen}
                         />
                       </TabsContent>
                       <TabsContent value="top" className="focus-visible:outline-none">

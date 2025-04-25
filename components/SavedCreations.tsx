@@ -19,7 +19,6 @@ interface SavedCreationsProps {
   votes: Vote[];
   user: User | undefined;
   onVote: (creationId: string, orientation: 'upvote' | 'downvote') => void;
-  setIsAuthModalOpen: (open: boolean) => void;
 }
 
 const SavedCreations = ({
@@ -27,7 +26,6 @@ const SavedCreations = ({
   votes,
   user,
   onVote,
-  setIsAuthModalOpen,
 }: SavedCreationsProps) => {
   const { toast } = useToast();
 
