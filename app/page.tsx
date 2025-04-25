@@ -200,22 +200,22 @@ export default function BratGenerator() {
           subheading="Create and share your unique BRAT content"
           className="flex-grow bg-gradient-to-b from-background via-background/80 to-background"
         >
-          <div className="space-y-16 py-8 animate-fade-in">
-            {/* Main Creation Section */}
-            <div className="mx-auto max-w-4xl">
-              <Card className="glass-effect hover-effect card-hover">
-                <CardHeader className="border-b border-border/40">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="space-y-16 py-8 animate-fade-in">
+              {/* Main Creation Section */}
+              <div className="glass-effect rounded-lg p-8 card-hover">
+                <CardHeader className="border-b border-border/40 px-0">
                   <CardTitle className="text-3xl font-bold gradient-text text-center">
                     Create Your BRAT
                   </CardTitle>
                 </CardHeader>
-                <CardContent className="pt-6">
+                <CardContent className="pt-6 px-0">
                   <Tabs
                     value={activeTab}
                     onValueChange={setActiveTab}
                     className="w-full"
                   >
-                    <TabsList className="mb-4 grid w-full grid-cols-3 rounded-lg bg-muted/50 p-1">
+                    <TabsList className="mb-4 grid w-full grid-cols-2 sm:grid-cols-3 rounded-lg bg-muted/50 p-1">
                       <TabsTrigger
                         value="create"
                         className="rounded-md transition-all duration-300 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg"
@@ -230,13 +230,13 @@ export default function BratGenerator() {
                       </TabsTrigger>
                       <TabsTrigger
                         value="top"
-                        className="rounded-md transition-all duration-300 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg"
+                        className="hidden sm:block rounded-md transition-all duration-300 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-lg"
                       >
                         Top BRATs
                       </TabsTrigger>
                     </TabsList>
-                    <div className="h-[600px] overflow-hidden rounded-lg">
-                      <TabsContent value="create" className="h-full">
+                    <div className="rounded-lg">
+                      <TabsContent value="create" className="focus-visible:outline-none">
                         <BratCreationForm
                           bratText={bratText}
                           setBratText={setBratText}
@@ -245,7 +245,7 @@ export default function BratGenerator() {
                           updateQueryParams={updateQueryParams}
                         />
                       </TabsContent>
-                      <TabsContent value="saved" className="h-full overflow-y-auto">
+                      <TabsContent value="saved" className="focus-visible:outline-none">
                         <SavedCreations
                           creations={sortedByDate}
                           votes={votes}
@@ -253,7 +253,7 @@ export default function BratGenerator() {
                           onVote={handleVote}
                         />
                       </TabsContent>
-                      <TabsContent value="top" className="h-full overflow-y-auto">
+                      <TabsContent value="top" className="focus-visible:outline-none">
                         <TopBrats
                           creations={sortedByLikes}
                           votes={votes}
@@ -264,82 +264,18 @@ export default function BratGenerator() {
                     </div>
                   </Tabs>
                 </CardContent>
-              </Card>
-            </div>
+              </div>
 
-            {/* Stats and Features Section */}
-            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-              <div className="space-y-16">
-                <div className="glass-effect rounded-lg p-8 card-hover">
-                  <StatsSection />
-                </div>
+              {/* Stats Section */}
+              <div className="glass-effect rounded-lg p-8 card-hover">
+                <StatsSection />
+              </div>
 
-                <div className="glass-effect rounded-lg p-8 card-hover">
-                  <FeatureHighlight />
-                </div>
+              {/* Feature Highlight Section */}
+              <div className="glass-effect rounded-lg p-8 card-hover">
+                <FeatureHighlight />
               </div>
             </div>
-
-            {/* Auth Dialog */}
-            <Dialog open={isAuthModalOpen} onOpenChange={setIsAuthModalOpen}>
-              <DialogContent className="glass-effect sm:max-w-[425px]">
-                <DialogHeader>
-                  <DialogTitle className="text-2xl font-bold gradient-text">
-                    {!authState.sentEmail ? 'Sign In' : 'Enter Code'}
-                  </DialogTitle>
-                  <DialogDescription>
-                    {!authState.sentEmail
-                      ? 'Enter your email to receive a magic link'
-                      : 'Check your email for the magic code'}
-                  </DialogDescription>
-                </DialogHeader>
-                
-                {!authState.sentEmail ? (
-                  <form onSubmit={handleSendMagicCode} className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="email">Email</Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        value={authState.email}
-                        onChange={(e) =>
-                          setAuthState({ ...authState, email: e.target.value })
-                        }
-                        className="glass-effect"
-                        required
-                      />
-                    </div>
-                    {authState.error && (
-                      <p className="text-destructive text-sm">{authState.error}</p>
-                    )}
-                    <Button type="submit" className="w-full button-effect">
-                      Send Magic Code
-                    </Button>
-                  </form>
-                ) : (
-                  <form onSubmit={handleVerifyMagicCode} className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="code">Magic Code</Label>
-                      <Input
-                        id="code"
-                        value={authState.code}
-                        onChange={(e) =>
-                          setAuthState({ ...authState, code: e.target.value })
-                        }
-                        className="glass-effect"
-                        required
-                      />
-                    </div>
-                    {authState.error && (
-                      <p className="text-destructive text-sm">{authState.error}</p>
-                    )}
-                    <Button type="submit" className="w-full button-effect">
-                      Verify Code
-                    </Button>
-                  </form>
-                )}
-              </DialogContent>
-            </Dialog>
           </div>
         </PageLayout>
         

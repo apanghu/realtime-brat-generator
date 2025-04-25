@@ -110,8 +110,8 @@ function BratCreationForm({
   };
 
   return (
-    <div className='container mx-auto'>
-      {/* Confetti effect */}
+    <div className='w-full p-2 sm:p-4'>
+      {/* Confetti animation for successful actions */}
       {showConfetti && !confettiComplete && (
         <ReactConfetti
           width={window.innerWidth}
@@ -122,18 +122,19 @@ function BratCreationForm({
         />
       )}
 
-      {/* Main container: Grid layout */}
-      <div className='grid grid-cols-1 gap-8 lg:grid-cols-2'>
-        {/* Left side: Preview area */}
-        <div className='flex items-center justify-center'>
+      {/* Main layout container */}
+      <div className='grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6'>
+        {/* Preview Section */}
+        <div className='flex items-center justify-center w-full'>
           <div
             ref={bratBoxRef}
-            className='relative aspect-[3/4] w-full max-w-md items-center justify-center overflow-hidden rounded-xl transition-all duration-300 hover:shadow-2xl'
+            className='relative w-full aspect-[3/4] items-center justify-center overflow-hidden rounded-xl transition-all duration-300 hover:shadow-2xl'
             style={{ 
               backgroundColor: selectedPreset.backgroundColor,
               boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
             }}
           >
+            {/* BRAT Text Display */}
             <div
               ref={displayRef}
               className='absolute inset-0 z-10 flex h-full w-full resize-none items-center justify-center overflow-hidden text-center text-4xl outline-none transition-all duration-300'
@@ -152,10 +153,10 @@ function BratCreationForm({
           </div>
         </div>
 
-        {/* Right side: Control panel */}
-        <div className='flex flex-col space-y-6'>
-          {/* Text input area */}
-          <div className='space-y-2'>
+        {/* Control Panel */}
+        <div className='flex flex-col space-y-4 w-full'>
+          {/* Text Input Field */}
+          <div className='space-y-2 w-full'>
             <label htmlFor='bratText' className='text-sm font-medium text-muted-foreground'>
               Enter Text
             </label>
@@ -164,13 +165,13 @@ function BratCreationForm({
               value={bratText}
               onChange={handleTextChange}
               placeholder='Enter your text here...'
-              className='min-h-[120px] w-full rounded-lg border-2 border-primary/20 bg-background/50 p-4 transition-all duration-300 focus:border-primary focus:ring-2 focus:ring-primary/20'
+              className='w-full min-h-[120px] rounded-lg border-2 border-primary/20 bg-background/50 p-4 transition-all duration-300 focus:border-primary focus:ring-2 focus:ring-primary/20'
               rows={4}
             />
           </div>
 
-          {/* Color theme selection */}
-          <div className='space-y-2'>
+          {/* Theme Selection Dropdown */}
+          <div className='space-y-2 w-full'>
             <label className='text-sm font-medium text-muted-foreground'>
               Select Color Theme
             </label>
@@ -192,16 +193,17 @@ function BratCreationForm({
             </Select>
           </div>
 
-          {/* Action buttons */}
-          <div className='flex flex-col space-y-4'>
-            {/* Upload button */}
-            <div className='relative'>
+          {/* Action Buttons */}
+          <div className='flex flex-col space-y-4 w-full'>
+            {/* Save to Cloud Button */}
+            <div className='relative w-full'>
               <Button 
                 onClick={handleSave} 
-                className='w-full bg-primary hover:bg-primary/90 transition-all duration-300 transform hover:scale-105 py-6'
+                className='w-full bg-primary hover:bg-primary/90 transition-all duration-300 transform hover:scale-105 py-4'
               >
                 <CloudIcon className='mr-2 h-5 w-5' /> Save to Cloud
               </Button>
+              {/* Success Animation Overlay */}
               <AnimatePresence>
                 {showSaveAnimation && (
                   <motion.div
@@ -216,18 +218,18 @@ function BratCreationForm({
               </AnimatePresence>
             </div>
 
-            {/* Download button */}
+            {/* Download Button */}
             <Button
               onClick={handleDownload}
               variant='secondary'
-              className='w-full py-6 transition-all duration-300 transform hover:scale-105 hover:shadow-md'
+              className='w-full py-4 transition-all duration-300 transform hover:scale-105 hover:shadow-md'
             >
               <DownloadIcon className='mr-2 h-5 w-5' /> Download Image
             </Button>
           </div>
 
-          {/* Tips section */}
-          <div className='rounded-lg bg-muted p-4 text-sm text-muted-foreground'>
+          {/* Help Tips */}
+          <div className='w-full rounded-lg bg-muted p-4 text-sm text-muted-foreground'>
             <p>Tips:</p>
             <ul className='list-disc pl-4 space-y-1 mt-2'>
               <li>You can modify the text anytime</li>

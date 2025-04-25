@@ -22,10 +22,7 @@ interface TopBratsProps {
 
 const TopBrats = ({ creations, votes, user, onVote }: TopBratsProps) => {
   return (
-    <motion.div
-      layout
-      className='grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3'
-    >
+    <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 auto-rows-auto'>
       <AnimatePresence>
         {creations.map((creation, index) => {
           const creationVotes = votes.filter(
@@ -110,7 +107,7 @@ const TopBrats = ({ creations, votes, user, onVote }: TopBratsProps) => {
           );
         })}
       </AnimatePresence>
-    </motion.div>
+    </div>
   );
 };
 
