@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import { Card } from '@/components/ui/card';
-import { UsersIcon, HeartIcon, SparklesIcon } from 'lucide-react';
+import { UsersIcon, HeartIcon, SparklesIcon, DownloadIcon, ShareIcon, ClockIcon } from 'lucide-react';
 
 export default function StatsSection() {
   const stats = [
@@ -24,6 +24,24 @@ export default function StatsSection() {
       icon: HeartIcon,
       description: 'Appreciation from the community',
     },
+    {
+      title: 'Downloads',
+      value: '3,500+',
+      icon: DownloadIcon,
+      description: 'BRATs downloaded by users',
+    },
+    {
+      title: 'Shares',
+      value: '2,800+',
+      icon: ShareIcon,
+      description: 'Times BRATs were shared',
+    },
+    {
+      title: 'Daily Active',
+      value: '200+',
+      icon: ClockIcon,
+      description: 'Daily active creations',
+    }
   ];
 
   return (
@@ -34,13 +52,13 @@ export default function StatsSection() {
       </h2>
 
       <div className="container px-4 mx-auto">
-        <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
           {stats.map((stat, index) => (
             <motion.div
               key={stat.title}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.2 }}
+              transition={{ delay: index * 0.1 }}
             >
               <Card className="p-6 text-center transition-all duration-200 hover:shadow-lg hover:border-primary/50 backdrop-blur-sm bg-background/80">
                 <div className="flex justify-center mb-4">
