@@ -194,7 +194,7 @@ export default function BratGenerator() {
   return (
     <Suspense fallback={<LoadingSpinner />}>
       <div className="min-h-screen flex flex-col">
-        <Navbar />
+        <Navbar setIsAuthModalOpen={setIsAuthModalOpen} />
         <PageLayout
           heading="BRAT Generator"
           subheading="Create and share your unique BRAT content"
@@ -267,81 +267,81 @@ export default function BratGenerator() {
               </div>
 
               <Dialog open={isAuthModalOpen} onOpenChange={setIsAuthModalOpen}>
-          <DialogContent className='bg-white sm:max-w-[425px]'>
-            <DialogHeader>
-              <DialogTitle className='text-2xl font-bold'>
-                Authentication Required
-              </DialogTitle>
-              <DialogDescription className='text-foreground/70'>
-                Please sign in to vote on BRAT creations.
-              </DialogDescription>
-            </DialogHeader>
-            <div className='mt-6'>
-              {!authState.sentEmail ? (
-                <form onSubmit={handleSendMagicCode} className='space-y-4'>
-                  <div className='space-y-2'>
-                    <Label htmlFor='email' className='text-sm font-medium'>
-                      Email
-                    </Label>
-                    <Input
-                      id='email'
-                      type='email'
-                      placeholder='Enter your email'
-                      value={authState.email}
-                      onChange={(e) =>
-                        setAuthState({
-                          ...authState,
-                          email: e.target.value,
-                          error: null,
-                        })
-                      }
-                      className='w-full'
-                    />
+                <DialogContent className='bg-white sm:max-w-[425px]'>
+                  <DialogHeader>
+                    <DialogTitle className='text-2xl font-bold'>
+                      Authentication Required
+                    </DialogTitle>
+                    <DialogDescription className='text-foreground/70'>
+                      Please sign in to vote on BRAT creations.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className='mt-6'>
+                    {!authState.sentEmail ? (
+                      <form onSubmit={handleSendMagicCode} className='space-y-4'>
+                        <div className='space-y-2'>
+                          <Label htmlFor='email' className='text-sm font-medium'>
+                            Email
+                          </Label>
+                          <Input
+                            id='email'
+                            type='email'
+                            placeholder='Enter your email'
+                            value={authState.email}
+                            onChange={(e) =>
+                              setAuthState({
+                                ...authState,
+                                email: e.target.value,
+                                error: null,
+                              })
+                            }
+                            className='w-full'
+                          />
+                        </div>
+                        <Button type='submit' className='w-full'>
+                          Send Code
+                        </Button>
+                        {authState.error && (
+                          <p className='mt-2 text-sm text-destructive'>
+                            {authState.error}
+                          </p>
+                        )}
+                      </form>
+                    ) : (
+                      <form onSubmit={handleVerifyMagicCode} className='space-y-4'>
+                        <div className='space-y-2'>
+                          <Label htmlFor='code' className='text-sm font-medium'>
+                            Magic Code
+                          </Label>
+                          <Input
+                            id='code'
+                            type='text'
+                            placeholder='Enter the magic code'
+                            value={authState.code}
+                            onChange={(e) =>
+                              setAuthState({
+                                ...authState,
+                                code: e.target.value,
+                                error: null,
+                              })
+                            }
+                            className='w-full'
+                          />
+                        </div>
+                        <Button type='submit' className='w-full'>
+                          Verify
+                        </Button>
+                        {authState.error && (
+                          <p className='mt-2 text-sm text-destructive'>
+                            {authState.error}
+                          </p>
+                        )}
+                      </form>
+                    )}
                   </div>
-                  <Button type='submit' className='w-full'>
-                    Send Code
-                  </Button>
-                  {authState.error && (
-                    <p className='mt-2 text-sm text-destructive'>
-                      {authState.error}
-                    </p>
-                  )}
-                </form>
-              ) : (
-                <form onSubmit={handleVerifyMagicCode} className='space-y-4'>
-                  <div className='space-y-2'>
-                    <Label htmlFor='code' className='text-sm font-medium'>
-                      Magic Code
-                    </Label>
-                    <Input
-                      id='code'
-                      type='text'
-                      placeholder='Enter the magic code'
-                      value={authState.code}
-                      onChange={(e) =>
-                        setAuthState({
-                          ...authState,
-                          code: e.target.value,
-                          error: null,
-                        })
-                      }
-                      className='w-full'
-                    />
-                  </div>
-                  <Button type='submit' className='w-full'>
-                    Verify
-                  </Button>
-                  {authState.error && (
-                    <p className='mt-2 text-sm text-destructive'>
-                      {authState.error}
-                    </p>
-                  )}
-                </form>
-              )}
-            </div>
-          </DialogContent>
-        </Dialog>
-        
+                </DialogContent>
+              </Dialog>
+
               <div className="glass-effect rounded-xl p-6 sm:p-8 card-hover">
                 <StatsSection />
               </div>
@@ -359,7 +359,7 @@ export default function BratGenerator() {
                   <p className="text-lg text-muted-foreground mb-6">
                     Join our creative community and start generating unique BRATs today
                   </p>
-                  <Button 
+                  <Button
                     onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
                     className="bg-primary hover:bg-primary/90 text-white px-8 py-6 text-lg font-semibold
                         transition-all duration-300 transform hover:scale-105"
@@ -371,7 +371,7 @@ export default function BratGenerator() {
             </div>
           </div>
         </PageLayout>
-        
+
         <Footer className="glass-effect mt-auto" />
       </div>
     </Suspense>
