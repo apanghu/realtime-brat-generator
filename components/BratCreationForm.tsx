@@ -122,22 +122,27 @@ function BratCreationForm({
         />
       )}
 
-      {/* Main layout container */}
-      <div className='grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6'>
-        {/* Preview Section */}
-        <div className='flex items-center justify-center w-full'>
+      {/* Improved grid layout with better spacing */}
+      <div className='grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8'>
+        {/* Enhanced preview section */}
+        <div className='flex items-center justify-center w-full p-2 sm:p-4'>
           <div
             ref={bratBoxRef}
-            className='relative w-full aspect-[3/4] items-center justify-center overflow-hidden rounded-xl transition-all duration-300 hover:shadow-2xl'
+            className='relative w-full aspect-[3/4] items-center justify-center 
+                overflow-hidden rounded-xl transition-all duration-500 
+                hover:shadow-2xl hover:scale-[1.02] 
+                border border-white/10'
             style={{ 
               backgroundColor: selectedPreset.backgroundColor,
               boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
             }}
           >
-            {/* BRAT Text Display */}
+            {/* Improved text display */}
             <div
               ref={displayRef}
-              className='absolute inset-0 z-10 flex h-full w-full resize-none items-center justify-center overflow-hidden text-center text-4xl outline-none transition-all duration-300'
+              className='absolute inset-0 z-10 flex h-full w-full 
+                  resize-none items-center justify-center overflow-hidden 
+                  text-center text-4xl outline-none transition-all duration-300'
               style={{
                 color: selectedPreset.textColor,
                 fontWeight: 'bold',
@@ -153,10 +158,10 @@ function BratCreationForm({
           </div>
         </div>
 
-        {/* Control Panel */}
-        <div className='flex flex-col space-y-4 w-full'>
-          {/* Text Input Field */}
-          <div className='space-y-2 w-full'>
+        {/* Enhanced control panel */}
+        <div className='flex flex-col space-y-6'>
+          {/* Improved text input */}
+          <div className='space-y-3'>
             <label htmlFor='bratText' className='text-sm font-medium text-muted-foreground'>
               Enter Text
             </label>
@@ -165,18 +170,23 @@ function BratCreationForm({
               value={bratText}
               onChange={handleTextChange}
               placeholder='Enter your text here...'
-              className='w-full min-h-[120px] rounded-lg border-2 border-primary/20 bg-background/50 p-4 transition-all duration-300 focus:border-primary focus:ring-2 focus:ring-primary/20'
+              className='w-full min-h-[120px] rounded-lg border-2 
+                  border-primary/20 bg-background/50 p-4 
+                  transition-all duration-300 
+                  focus:border-primary focus:ring-2 focus:ring-primary/20
+                  hover:border-primary/40'
               rows={4}
             />
           </div>
 
-          {/* Theme Selection Dropdown */}
-          <div className='space-y-2 w-full'>
+          {/* Enhanced theme selection */}
+          <div className='space-y-3'>
             <label className='text-sm font-medium text-muted-foreground'>
               Select Color Theme
             </label>
             <Select onValueChange={handlePresetChange} value={selectedPreset.value}>
-              <SelectTrigger className='w-full transition-all duration-300 hover:border-primary'>
+              <SelectTrigger className='w-full transition-all duration-300 
+                  hover:border-primary focus:ring-2 focus:ring-primary/20'>
                 <SelectValue placeholder='Choose a color theme' />
               </SelectTrigger>
               <SelectContent>
@@ -193,13 +203,17 @@ function BratCreationForm({
             </Select>
           </div>
 
-          {/* Action Buttons */}
-          <div className='flex flex-col space-y-4 w-full'>
-            {/* Save to Cloud Button */}
-            <div className='relative w-full'>
+          {/* Enhanced action buttons */}
+          <div className='flex flex-col space-y-4 pt-2'>
+            {/* Save button with improved animation */}
+            <div className='relative'>
               <Button 
                 onClick={handleSave} 
-                className='w-full bg-primary hover:bg-primary/90 transition-all duration-300 transform hover:scale-105 py-4'
+                className='w-full bg-primary hover:bg-primary/90 
+                    transition-all duration-300 transform 
+                    hover:scale-[1.02] hover:shadow-lg
+                    active:scale-[0.98] py-4 sm:py-6
+                    rounded-lg font-medium'
               >
                 <CloudIcon className='mr-2 h-5 w-5' /> Save to Cloud
               </Button>
@@ -218,23 +232,33 @@ function BratCreationForm({
               </AnimatePresence>
             </div>
 
-            {/* Download Button */}
+            {/* Download button with matching style */}
             <Button
               onClick={handleDownload}
               variant='secondary'
-              className='w-full py-4 transition-all duration-300 transform hover:scale-105 hover:shadow-md'
+              className='w-full py-4 sm:py-6 transition-all duration-300 
+                  transform hover:scale-[1.02] hover:shadow-lg 
+                  active:scale-[0.98] rounded-lg font-medium'
             >
               <DownloadIcon className='mr-2 h-5 w-5' /> Download Image
             </Button>
           </div>
 
-          {/* Help Tips */}
-          <div className='w-full rounded-lg bg-muted p-4 text-sm text-muted-foreground'>
-            <p>Tips:</p>
-            <ul className='list-disc pl-4 space-y-1 mt-2'>
-              <li>You can modify the text anytime</li>
-              <li>Try different color themes</li>
-              <li>Save to cloud for future editing</li>
+          {/* Enhanced tips section */}
+          <div className='rounded-lg bg-muted/60 p-4 text-sm 
+              text-muted-foreground backdrop-blur-sm 
+              border border-white/5 shadow-sm'>
+            <p className="font-medium mb-2">Tips:</p>
+            <ul className='list-disc pl-4 space-y-2'>
+              <li className="opacity-80 hover:opacity-100 transition-opacity">
+                You can modify the text anytime
+              </li>
+              <li className="opacity-80 hover:opacity-100 transition-opacity">
+                Try different color themes
+              </li>
+              <li className="opacity-80 hover:opacity-100 transition-opacity">
+                Save to cloud for future editing
+              </li>
             </ul>
           </div>
         </div>

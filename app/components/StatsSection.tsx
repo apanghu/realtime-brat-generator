@@ -27,7 +27,12 @@ export default function StatsSection() {
   ];
 
   return (
-    <section className="py-12">
+    <div>
+      <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-primary/90 via-primary to-primary/90 
+          bg-clip-text text-transparent animate-gradient text-center mb-8">
+        Platform Statistics
+      </h2>
+
       <div className="container px-4 mx-auto">
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
           {stats.map((stat, index) => (
@@ -51,6 +56,6 @@ export default function StatsSection() {
           ))}
         </div>
       </div>
-    </section>
+    </div>
   );
 } 
