@@ -122,22 +122,21 @@ function BratCreationForm({
         />
       )}
 
-      {/* Improved grid layout with better spacing */}
-      <div className='grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8'>
-        {/* Enhanced preview section */}
-        <div className='flex items-center justify-center w-full p-2 sm:p-4'>
+      {/* Improved grid layout with better balance */}
+      <div className='grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12'>
+        {/* Left side: Preview section with enhanced container */}
+        <div className='flex flex-col items-center justify-center w-full bg-background/30 rounded-xl p-6 backdrop-blur-sm border border-white/10'>
           <div
             ref={bratBoxRef}
-            className='relative w-full aspect-[3/4] items-center justify-center 
+            className='relative w-full max-w-md aspect-[3/4] items-center justify-center 
                 overflow-hidden rounded-xl transition-all duration-500 
                 hover:shadow-2xl hover:scale-[1.02] 
-                border border-white/10'
+                border border-white/20 shadow-lg'
             style={{ 
               backgroundColor: selectedPreset.backgroundColor,
               boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
             }}
           >
-            {/* Improved text display */}
             <div
               ref={displayRef}
               className='absolute inset-0 z-10 flex h-full w-full 
@@ -156,14 +155,18 @@ function BratCreationForm({
               {bratText}
             </div>
           </div>
+          {/* Add preview label */}
+          <div className="mt-4 text-sm text-muted-foreground text-center">
+            Preview - Your BRAT will look like this
+          </div>
         </div>
 
-        {/* Enhanced control panel */}
-        <div className='flex flex-col space-y-6'>
-          {/* Improved text input */}
+        {/* Right side: Control panel with matching style */}
+        <div className='flex flex-col space-y-6 bg-background/30 rounded-xl p-6 backdrop-blur-sm border border-white/10'>
+          {/* Text input with improved styling */}
           <div className='space-y-3'>
-            <label htmlFor='bratText' className='text-sm font-medium text-muted-foreground'>
-              Enter Text
+            <label htmlFor='bratText' className='text-base font-semibold text-foreground/90'>
+              Enter Your Text
             </label>
             <Textarea
               id='bratText'
@@ -174,19 +177,20 @@ function BratCreationForm({
                   border-primary/20 bg-background/50 p-4 
                   transition-all duration-300 
                   focus:border-primary focus:ring-2 focus:ring-primary/20
-                  hover:border-primary/40'
+                  hover:border-primary/40 text-base'
               rows={4}
             />
           </div>
 
-          {/* Enhanced theme selection */}
+          {/* Theme selection with improved styling */}
           <div className='space-y-3'>
-            <label className='text-sm font-medium text-muted-foreground'>
-              Select Color Theme
+            <label className='text-base font-semibold text-foreground/90'>
+              Color Theme
             </label>
             <Select onValueChange={handlePresetChange} value={selectedPreset.value}>
               <SelectTrigger className='w-full transition-all duration-300 
-                  hover:border-primary focus:ring-2 focus:ring-primary/20'>
+                  hover:border-primary focus:ring-2 focus:ring-primary/20
+                  bg-background/50 border-2 border-primary/20'>
                 <SelectValue placeholder='Choose a color theme' />
               </SelectTrigger>
               <SelectContent>
@@ -203,17 +207,17 @@ function BratCreationForm({
             </Select>
           </div>
 
-          {/* Enhanced action buttons */}
+          {/* Action buttons with consistent styling */}
           <div className='flex flex-col space-y-4 pt-2'>
-            {/* Save button with improved animation */}
+            {/* Save button */}
             <div className='relative'>
               <Button 
                 onClick={handleSave} 
                 className='w-full bg-primary hover:bg-primary/90 
                     transition-all duration-300 transform 
                     hover:scale-[1.02] hover:shadow-lg
-                    active:scale-[0.98] py-4 sm:py-6
-                    rounded-lg font-medium'
+                    active:scale-[0.98] py-6
+                    rounded-lg text-base font-semibold'
               >
                 <CloudIcon className='mr-2 h-5 w-5' /> Save to Cloud
               </Button>
@@ -232,32 +236,36 @@ function BratCreationForm({
               </AnimatePresence>
             </div>
 
-            {/* Download button with matching style */}
+            {/* Download button */}
             <Button
               onClick={handleDownload}
               variant='secondary'
-              className='w-full py-4 sm:py-6 transition-all duration-300 
+              className='w-full py-6 transition-all duration-300 
                   transform hover:scale-[1.02] hover:shadow-lg 
-                  active:scale-[0.98] rounded-lg font-medium'
+                  active:scale-[0.98] rounded-lg text-base font-semibold
+                  bg-background/50 border-2 border-primary/20'
             >
               <DownloadIcon className='mr-2 h-5 w-5' /> Download Image
             </Button>
           </div>
 
-          {/* Enhanced tips section */}
-          <div className='rounded-lg bg-muted/60 p-4 text-sm 
-              text-muted-foreground backdrop-blur-sm 
-              border border-white/5 shadow-sm'>
-            <p className="font-medium mb-2">Tips:</p>
-            <ul className='list-disc pl-4 space-y-2'>
-              <li className="opacity-80 hover:opacity-100 transition-opacity">
-                You can modify the text anytime
+          {/* Tips section with matching style */}
+          <div className='rounded-lg bg-background/50 p-5 
+              text-sm backdrop-blur-sm 
+              border-2 border-primary/20'>
+            <p className="font-semibold text-base text-foreground/90 mb-3">Quick Tips</p>
+            <ul className='space-y-2 text-muted-foreground'>
+              <li className="flex items-center opacity-80 hover:opacity-100 transition-opacity">
+                <span className="mr-2">•</span>
+                Modify text anytime to update preview
               </li>
-              <li className="opacity-80 hover:opacity-100 transition-opacity">
-                Try different color themes
+              <li className="flex items-center opacity-80 hover:opacity-100 transition-opacity">
+                <span className="mr-2">•</span>
+                Experiment with different themes
               </li>
-              <li className="opacity-80 hover:opacity-100 transition-opacity">
-                Save to cloud for future editing
+              <li className="flex items-center opacity-80 hover:opacity-100 transition-opacity">
+                <span className="mr-2">•</span>
+                Save to cloud for later edits
               </li>
             </ul>
           </div>
