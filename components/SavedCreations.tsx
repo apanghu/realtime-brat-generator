@@ -31,14 +31,6 @@ const SavedCreations = ({
 }: SavedCreationsProps) => {
   const { toast } = useToast();
 
-  const handleVoteClick = (creationId: string, orientation: 'upvote' | 'downvote') => {
-    if (!user) {
-      setIsAuthModalOpen(true);
-      return;
-    }
-    onVote(creationId, orientation);
-  };
-
   const handleShare = (creation: BratCreation) => {
     const shareUrl = `${window.location.origin}/?text=${encodeURIComponent(creation.text)}&preset=${creation.preset}`;
     
@@ -106,7 +98,7 @@ const SavedCreations = ({
                       variant={
                         userVote?.orientation === 'upvote' ? 'default' : 'outline'
                       }
-                      onClick={() => handleVoteClick(creation.id, 'upvote')}
+                      onClick={() => onVote(creation.id, 'upvote')}
                       className="hover-effect"
                     >
                       <ThumbsUpIcon className='mr-1 h-4 w-4' />
@@ -117,7 +109,7 @@ const SavedCreations = ({
                       variant={
                         userVote?.orientation === 'downvote' ? 'default' : 'outline'
                       }
-                      onClick={() => handleVoteClick(creation.id, 'downvote')}
+                      onClick={() => onVote(creation.id, 'downvote')}
                       className="hover-effect"
                     >
                       <ThumbsDownIcon className='mr-1 h-4 w-4' />
