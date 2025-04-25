@@ -202,12 +202,9 @@ export default function BratGenerator() {
         >
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="space-y-12 py-6 animate-fade-in">
-              <div className="glass-effect rounded-xl p-6 sm:p-8 card-hover backdrop-blur-sm 
-                  border border-white/10 shadow-xl hover:shadow-2xl 
-                  transition-all duration-500 ease-out">
-                <CardHeader className="border-b border-border/40 px-0 pb-6">
-                  <CardTitle className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-primary/90 via-primary to-primary/90 
-                      bg-clip-text text-transparent animate-gradient">
+              <div className="glass-effect rounded-xl p-6 sm:p-8 card-hover">
+                <CardHeader className="border-b border-border/40 px-0">
+                  <CardTitle className="text-3xl font-bold gradient-text text-center">
                     Create Your BRAT
                   </CardTitle>
                 </CardHeader>
@@ -268,16 +265,31 @@ export default function BratGenerator() {
                 </CardContent>
               </div>
 
-              <div className="glass-effect rounded-xl p-6 sm:p-8 card-hover backdrop-blur-sm 
-                  border border-white/10 shadow-xl hover:shadow-2xl 
-                  transition-all duration-500 ease-out">
+              <div className="glass-effect rounded-xl p-6 sm:p-8 card-hover">
                 <StatsSection />
               </div>
 
-              <div className="glass-effect rounded-xl p-6 sm:p-8 card-hover backdrop-blur-sm 
-                  border border-white/10 shadow-xl hover:shadow-2xl 
-                  transition-all duration-500 ease-out">
+              <div className="glass-effect rounded-xl p-6 sm:p-8 card-hover">
                 <FeatureHighlight />
+              </div>
+
+              <div className="mt-12 sm:mt-16 text-center">
+                <div className="glass-effect rounded-xl p-8 sm:p-12 card-hover max-w-3xl mx-auto">
+                  <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-primary/90 via-primary to-primary/90 
+                      bg-clip-text text-transparent animate-gradient mb-4">
+                    Ready to Create Your BRAT?
+                  </h2>
+                  <p className="text-lg text-muted-foreground mb-6">
+                    Join our creative community and start generating unique BRATs today
+                  </p>
+                  <Button 
+                    onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })}
+                    className="bg-primary hover:bg-primary/90 text-white px-8 py-6 text-lg font-semibold
+                        transition-all duration-300 transform hover:scale-105"
+                  >
+                    Start Creating Now
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
