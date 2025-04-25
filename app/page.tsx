@@ -27,6 +27,7 @@ import LoadingSpinner from './components/LoadingSpinner';
 import StatsSection from './components/StatsSection';
 import FeatureHighlight from './components/FeatureHighlight';
 import Footer from './components/Footer';
+import { cn } from '@/lib/utils';
 
 export default function BratGenerator() {
   const router = useRouter();
@@ -124,32 +125,84 @@ export default function BratGenerator() {
     }
   };
 
+  const handleVerifyMagicCode = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    // Check if code is empty
+    if (!authState.code) {
+      setAuthState({
+        ...authState,
+        error: "Please enter the verification code"
+      });
+      return;
+    }
+
+    // Validate code format (6 digits)
+    const codeRegex = /^\d{6}$/;
+    if (!codeRegex.test(authState.code)) {
+      setAuthState({
+        ...authState,
+        error: "Please enter a valid 6-digit code"
+      });
+      return;
+    }
+
+    try {
+      const result = await db.auth.signInWithMagicCode({
+        email: authState.sentEmail,
+        code: authState.code,
+      });
+
+      // Check if the verification was successful
+      if (result?.error) {
+        setAuthState({
+          ...authState,
+          error: "Invalid verification code. Please try again.",
+          code: '' // Clear the incorrect code
+        });
+        return;
+      }
+
+      // If successful, close modal and reset state
+      setIsAuthModalOpen(false);
+      setAuthState({ sentEmail: '', email: '', error: null, code: '' });
+    } catch (error) {
+      if (error instanceof Error) {
+        setAuthState({ 
+          ...authState, 
+          error: "Invalid verification code. Please try again.",
+          code: '' // Clear the incorrect code
+        });
+      }
+    }
+  };
+
   const handleSendMagicCode = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!authState.email) return;
+    
+    // Validate email presence
+    if (!authState.email) {
+      setAuthState({
+        ...authState,
+        error: "Please enter your email address"
+      });
+      return;
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(authState.email)) {
+      setAuthState({
+        ...authState,
+        error: "Please enter a valid email address"
+      });
+      return;
+    }
 
     setAuthState({ ...authState, sentEmail: authState.email, error: null });
 
     try {
       await db.auth.sendMagicCode({ email: authState.email });
-    } catch (error) {
-      if (error instanceof Error) {
-        setAuthState({ ...authState, error: error.message });
-      }
-    }
-  };
-
-  const handleVerifyMagicCode = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!authState.code) return;
-
-    try {
-      await db.auth.signInWithMagicCode({
-        email: authState.sentEmail,
-        code: authState.code,
-      });
-      setIsAuthModalOpen(false);
-      setAuthState({ sentEmail: '', email: '', error: null, code: '' });
     } catch (error) {
       if (error instanceof Error) {
         setAuthState({ ...authState, error: error.message });
@@ -295,47 +348,120 @@ export default function BratGenerator() {
                                 error: null,
                               })
                             }
-                            className='w-full'
+                            className={cn(
+                              'w-full',
+                              authState.error && 'border-destructive focus-visible:ring-destructive'
+                            )}
+                            aria-invalid={!!authState.error}
                           />
+                          {authState.error && (
+                            <p className='text-sm font-medium text-destructive'>
+                              {authState.error}
+                            </p>
+                          )}
                         </div>
                         <Button type='submit' className='w-full'>
                           Send Code
                         </Button>
-                        {authState.error && (
-                          <p className='mt-2 text-sm text-destructive'>
-                            {authState.error}
-                          </p>
-                        )}
                       </form>
                     ) : (
                       <form onSubmit={handleVerifyMagicCode} className='space-y-4'>
                         <div className='space-y-2'>
-                          <Label htmlFor='code' className='text-sm font-medium'>
-                            Magic Code
-                          </Label>
-                          <Input
-                            id='code'
-                            type='text'
-                            placeholder='Enter the magic code'
-                            value={authState.code}
-                            onChange={(e) =>
-                              setAuthState({
-                                ...authState,
-                                code: e.target.value,
-                                error: null,
-                              })
-                            }
-                            className='w-full'
-                          />
+                          <div className="flex items-center justify-between">
+                            <Label htmlFor='code' className='text-sm font-medium'>
+                              Verification Code
+                            </Label>
+                            <div className="flex items-center gap-2">
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="text-xs text-muted-foreground hover:text-primary"
+                                onClick={() => setAuthState({ 
+                                  ...authState, 
+                                  sentEmail: '', 
+                                  error: null,
+                                  code: '' 
+                                })}
+                              >
+                                Use different email
+                              </Button>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="text-xs text-muted-foreground hover:text-primary"
+                                onClick={async () => {
+                                  try {
+                                    await db.auth.sendMagicCode({ email: authState.sentEmail });
+                                    setAuthState({
+                                      ...authState,
+                                      error: "New verification code sent",
+                                      code: ''
+                                    });
+                                    // Clear success message after 3 seconds
+                                    setTimeout(() => {
+                                      setAuthState(prev => ({
+                                        ...prev,
+                                        error: null
+                                      }));
+                                    }, 3000);
+                                  } catch (error) {
+                                    setAuthState({
+                                      ...authState,
+                                      error: "Failed to send new code. Please try again."
+                                    });
+                                  }
+                                }}
+                              >
+                                Resend code
+                              </Button>
+                            </div>
+                          </div>
+                          <div className="space-y-2">
+                            <Input
+                              id='code'
+                              type='text'
+                              inputMode="numeric"
+                              pattern="\d*"
+                              maxLength={6}
+                              placeholder='Enter the 6-digit code'
+                              value={authState.code}
+                              onChange={(e) =>
+                                setAuthState({
+                                  ...authState,
+                                  code: e.target.value.replace(/\D/g, ''),
+                                  error: null,
+                                })
+                              }
+                              className={cn(
+                                'w-full text-center text-lg tracking-widest font-mono',
+                                authState.error && authState.error !== "New verification code sent" 
+                                  ? 'border-destructive focus-visible:ring-destructive'
+                                  : authState.error === "New verification code sent"
+                                    ? 'border-success focus-visible:ring-success'
+                                    : ''
+                              )}
+                              aria-invalid={!!authState.error && authState.error !== "New verification code sent"}
+                            />
+                            {authState.error && (
+                              <p className={cn(
+                                'text-sm font-medium',
+                                authState.error === "New verification code sent" 
+                                  ? 'text-success'
+                                  : 'text-destructive'
+                              )}>
+                                {authState.error}
+                              </p>
+                            )}
+                          </div>
+                          <p className="text-sm text-muted-foreground">
+                            We sent a verification code to {authState.sentEmail}
+                          </p>
                         </div>
                         <Button type='submit' className='w-full'>
-                          Verify
+                          Verify Code
                         </Button>
-                        {authState.error && (
-                          <p className='mt-2 text-sm text-destructive'>
-                            {authState.error}
-                          </p>
-                        )}
                       </form>
                     )}
                   </div>
